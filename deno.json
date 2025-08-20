@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts",
+    "start": "deno run --allow-env --allow-read main.ts"
+  },
+  "imports": {
+    "citty": "npm:citty@0.1.6",
+    "consola": "npm:consola@3.4.2"
+  }
+}
