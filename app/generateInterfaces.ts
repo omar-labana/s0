@@ -256,10 +256,10 @@ function generateInterfaceCode(
         const isEnum = allSchemas[refName] && !('$ref' in allSchemas[refName]) && (allSchemas[refName] as OpenAPIV3.SchemaObject).enum && Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
         
         if (isEnum) {
-          interfaceCode += `  ${propName}: Enums.E_${refName};\n`;
+          interfaceCode += `  ${propName}?: Enums.E_${refName};\n`;
         } else {
           // This is an interface reference, prefix it with I_
-          interfaceCode += `  ${propName}: I_${refName};\n`;
+          interfaceCode += `  ${propName}?: I_${refName};\n`;
         }
       } else {
         const propType = getPropertyType(propSchema, allSchemas);
@@ -387,6 +387,41 @@ function getPropertyType(
   
   // Now we know it's a SchemaObject
   const schema = propSchema as OpenAPIV3.SchemaObject;
+  
+  // Handle oneOf schemas
+  if (schema.oneOf && Array.isArray(schema.oneOf)) {
+    const oneOfTypes: string[] = [];
+    schema.oneOf.forEach((oneOfSchema) => {
+      if ('$ref' in oneOfSchema) {
+        const refName = oneOfSchema.$ref.split('/').pop() || 'unknown';
+        const resolvedSchema = allSchemas[refName];
+        if (resolvedSchema) {
+          if ('$ref' in resolvedSchema) {
+            oneOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+          } else {
+            const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+            if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
+              // This is an enum schema
+              oneOfTypes.push(`Enums.E_${refName}`);
+            } else if (schemaObj.type === 'object' || schemaObj.properties) {
+              // This is an object schema
+              oneOfTypes.push(`I_${refName}`);
+            } else {
+              oneOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+            }
+          }
+        }
+      } else {
+        oneOfTypes.push(getPropertyType(oneOfSchema, allSchemas));
+      }
+    });
+    
+    if (oneOfTypes.length === 1) {
+      return oneOfTypes[0];
+    } else if (oneOfTypes.length > 1) {
+      return oneOfTypes.join(' | ');
+    }
+  }
   
   if (schema.enum && Array.isArray(schema.enum)) {
     let enumName = schema.title || ((schema as Record<string, unknown>)['x-enumNames'] as string[])?.[0] || 'Unknown';

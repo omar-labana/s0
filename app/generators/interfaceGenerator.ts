@@ -97,13 +97,30 @@ export function generateReturnType(endpoint: EndpointInfo): string {
           >;
           if (jsonContent.schema && typeof jsonContent.schema === "object") {
             const schema = jsonContent.schema as Record<string, unknown>;
+
+            // Handle direct $ref
             if (schema.$ref) {
-              // Extract interface name from $ref
               const ref = schema.$ref as string;
               const schemaName = ref.split("/").pop() || "";
               const interfaceName =
                 convertSchemaNameToInterfaceName(schemaName);
               return `Interfaces.${interfaceName}`;
+            }
+
+            // Handle array schemas with $ref items
+            if (
+              schema.type === "array" &&
+              schema.items &&
+              typeof schema.items === "object"
+            ) {
+              const items = schema.items as Record<string, unknown>;
+              if (items.$ref) {
+                const ref = items.$ref as string;
+                const schemaName = ref.split("/").pop() || "";
+                const interfaceName =
+                  convertSchemaNameToInterfaceName(schemaName);
+                return `Interfaces.${interfaceName}[]`;
+              }
             }
           }
         }
