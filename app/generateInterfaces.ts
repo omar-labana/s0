@@ -52,9 +52,9 @@ export function generateInterfaces(components: Partial<OpenAPIV3.ComponentsObjec
       // Determine interface type based on usage analysis
       let interfaceName: string;
       if (usage.isRequest) {
-        interfaceName = `IP_${schemaName}`; // Payload
+        interfaceName = `P_${schemaName}`; // Payload
       } else if (usage.isQuery) {
-        interfaceName = `IQ_${schemaName}`; // Query
+        interfaceName = `Q_${schemaName}`; // Query
       } else {
         interfaceName = `I_${schemaName}`; // DTO (default)
       }
@@ -99,31 +99,39 @@ import * as Enums from './generated-enums.ts';
   return finalOutput;
 }
 
-function analyzeSchemaUsage(paths: any): Map<string, SchemaUsage> {
+
+function analyzeSchemaUsage(paths: Record<string, unknown>): Map<string, SchemaUsage> {
   const usage = new Map<string, SchemaUsage>();
   
-  Object.entries(paths).forEach(([path, pathItem]: [string, any]) => {
-    if (!pathItem) return;
+  Object.entries(paths).forEach(([pathUrl, pathItem]) => {
+    if (!pathItem || typeof pathItem !== 'object') return;
+    
+    const pathItemObj = pathItem as Record<string, unknown>;
     
     // Check all HTTP methods
-    const methods = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace'];
+    const methods = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace'] as const;
     
     methods.forEach(method => {
-      const operation = pathItem[method];
-      if (!operation) return;
+      const operation = pathItemObj[method];
+      if (!operation || typeof operation !== 'object') return;
+      
+      const operationObj = operation as Record<string, unknown>;
       
       // Check request body (POST/PUT/PATCH)
-      if (operation.requestBody && ['post', 'put', 'patch'].includes(method)) {
-        const requestBody = operation.requestBody;
-        if (requestBody.content) {
-          Object.values(requestBody.content).forEach((mediaType: any) => {
-            if (mediaType.schema && '$ref' in mediaType.schema) {
-              const refName = mediaType.schema.$ref.split('/').pop() || '';
-              if (refName) {
-                const existing = usage.get(refName) || createDefaultUsage(refName);
-                existing.isRequest = true;
-                existing.httpMethods.push(method.toUpperCase());
-                usage.set(refName, existing);
+      if (operationObj.requestBody && ['post', 'put', 'patch'].includes(method)) {
+        const requestBody = operationObj.requestBody as Record<string, unknown>;
+        if (requestBody.content && typeof requestBody.content === 'object') {
+          Object.values(requestBody.content as Record<string, unknown>).forEach((mediaType) => {
+            if (mediaType && typeof mediaType === 'object' && 'schema' in mediaType) {
+              const schema = mediaType.schema as Record<string, unknown>;
+              if (schema && '$ref' in schema && typeof schema.$ref === 'string') {
+                const refName = schema.$ref.split('/').pop() || '';
+                if (refName) {
+                  const existing = usage.get(refName) || createDefaultUsage(refName);
+                  existing.isRequest = true;
+                  existing.httpMethods.push(method.toUpperCase());
+                  usage.set(refName, existing);
+                }
               }
             }
           });
@@ -131,37 +139,68 @@ function analyzeSchemaUsage(paths: any): Map<string, SchemaUsage> {
       }
       
       // Check response schemas
-      if (operation.responses) {
-        Object.values(operation.responses).forEach((response: any) => {
-          if (response && 'content' in response && response.content) {
-            Object.values(response.content).forEach((mediaType: any) => {
-              if (mediaType.schema && '$ref' in mediaType.schema) {
-                const refName = mediaType.schema.$ref.split('/').pop() || '';
-                if (refName) {
-                  const existing = usage.get(refName) || createDefaultUsage(refName);
-                  existing.isResponse = true;
-                  existing.httpMethods.push(method.toUpperCase());
-                  usage.set(refName, existing);
+      if (operationObj.responses && typeof operationObj.responses === 'object') {
+        Object.values(operationObj.responses as Record<string, unknown>).forEach((response) => {
+          if (response && typeof response === 'object' && 'content' in response) {
+            const responseObj = response as Record<string, unknown>;
+            if (responseObj.content && typeof responseObj.content === 'object') {
+              Object.values(responseObj.content as Record<string, unknown>).forEach((mediaType) => {
+                if (mediaType && typeof mediaType === 'object' && 'schema' in mediaType) {
+                  const schema = mediaType.schema as Record<string, unknown>;
+                  if (schema && '$ref' in schema && typeof schema.$ref === 'string') {
+                    const refName = schema.$ref.split('/').pop() || '';
+                    if (refName) {
+                      const existing = usage.get(refName) || createDefaultUsage(refName);
+                      existing.isResponse = true;
+                      existing.httpMethods.push(method.toUpperCase());
+                      usage.set(refName, existing);
+                    }
+                  }
                 }
-              }
-            });
+              });
+            }
           }
         });
       }
       
-      // Check query parameters (GET requests)
-      if (method === 'get' && operation.parameters) {
-        operation.parameters.forEach((param: any) => {
-          if (param && 'schema' in param && param.schema && '$ref' in param.schema) {
-            const refName = param.schema.$ref.split('/').pop() || '';
-            if (refName) {
-              const existing = usage.get(refName) || createDefaultUsage(refName);
-              existing.isQuery = true;
-              existing.httpMethods.push('GET');
-              usage.set(refName, existing);
-            }
+      // FIXED: Check query parameters - create synthetic schema names for GET endpoints
+      if (method === 'get' && operationObj.parameters && Array.isArray(operationObj.parameters)) {
+        const queryParams = operationObj.parameters.filter((param: any) => 
+          param && typeof param === 'object' && param.in === 'query'
+        );
+        
+        if (queryParams.length > 0) {
+          // Create a synthetic schema name based on the endpoint
+          const operationId = operationObj.operationId as string;
+          let querySchemaName = '';
+          
+          if (operationId) {
+            // Extract meaningful name from operationId
+            // e.g., "eTendringWebFeaturesAccountCombinationsBudgetGetListGetListEndpoint" 
+            // -> "GetAccountCombinationsBudgetList"
+            const parts = operationId.split(/(?=[A-Z])/);
+            const meaningfulParts = parts.filter(part => 
+              !part.toLowerCase().includes('web') &&
+              !part.toLowerCase().includes('features') &&
+              !part.toLowerCase().includes('endpoint') &&
+              part.length > 1
+            );
+            querySchemaName = meaningfulParts.join('') + 'Query';
+          } else {
+            // Fallback: use path-based naming
+            const pathParts = pathUrl.split('/').filter(p => p && !p.startsWith('{'));
+            querySchemaName = pathParts.map(p => 
+              p.charAt(0).toUpperCase() + p.slice(1)
+            ).join('') + 'Query';
           }
-        });
+          
+          if (querySchemaName) {
+            const existing = usage.get(querySchemaName) || createDefaultUsage(querySchemaName);
+            existing.isQuery = true;
+            existing.httpMethods.push('GET');
+            usage.set(querySchemaName, existing);
+          }
+        }
       }
     });
   });
@@ -208,7 +247,7 @@ function generateInterfaceCode(
       if ('$ref' in propSchema) {
         const refName = propSchema.$ref.split('/').pop() || 'unknown';
         
-        const isEnum = allSchemas[refName] && (allSchemas[refName] as any).enum && Array.isArray((allSchemas[refName] as any).enum);
+        const isEnum = allSchemas[refName] && !('$ref' in allSchemas[refName]) && (allSchemas[refName] as OpenAPIV3.SchemaObject).enum && Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
         
         if (isEnum) {
           interfaceCode += `  ${propName}: Enums.E_${refName};\n`;
@@ -256,7 +295,7 @@ function handleInheritance(
       if ('$ref' in inheritedSchema) {
         const refName = inheritedSchema.$ref.split('/').pop() || `Base${index}`;
         
-        const isEnum = allSchemas[refName] && (allSchemas[refName] as any).enum && Array.isArray((allSchemas[refName] as any).enum);
+        const isEnum = allSchemas[refName] && !('$ref' in allSchemas[refName]) && (allSchemas[refName] as OpenAPIV3.SchemaObject).enum && Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
         
         if (isEnum) {
           extendsList.push(`Enums.E_${refName}`);
@@ -284,7 +323,7 @@ function handleInheritance(
         if ('$ref' in propSchema) {
           const refName = propSchema.$ref.split('/').pop() || 'unknown';
           
-          const isEnum = allSchemas[refName] && (allSchemas[refName] as any).enum && Array.isArray((allSchemas[refName] as any).enum);
+          const isEnum = allSchemas[refName] && !('$ref' in allSchemas[refName]) && (allSchemas[refName] as OpenAPIV3.SchemaObject).enum && Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
           
           if (isEnum) {
             properties.push(`  ${propName}: Enums.E_${refName};`);
@@ -309,7 +348,7 @@ function handleInheritance(
       if ('$ref' in inheritedSchema) {
         const refName = inheritedSchema.$ref.split('/').pop() || 'unknown';
         
-        const isEnum = allSchemas[refName] && (allSchemas[refName] as any).enum && Array.isArray((allSchemas[refName] as any).enum);
+        const isEnum = allSchemas[refName] && !('$ref' in allSchemas[refName]) && (allSchemas[refName] as OpenAPIV3.SchemaObject).enum && Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
         
         if (isEnum) {
           unionTypes.push(`Enums.E_${refName}`);
@@ -318,7 +357,6 @@ function handleInheritance(
         }
       } else {
         const inlineInterfaceName = `${interfaceName}Inline${unionTypes.length}`;
-        const inlineCode = generateInterfaceCode(inlineInterfaceName, inheritedSchema, allSchemas);
         unionTypes.push(inlineInterfaceName);
       }
     });
@@ -328,11 +366,24 @@ function handleInheritance(
 }
 
 function getPropertyType(
-  propSchema: any, 
+  propSchema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, 
   allSchemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
 ): string {
-  if (propSchema.enum && Array.isArray(propSchema.enum)) {
-    let enumName = propSchema.title || propSchema['x-enumNames']?.[0] || 'Unknown';
+  // If it's a reference, we need to resolve it first
+  if ('$ref' in propSchema) {
+    const refName = propSchema.$ref.split('/').pop() || 'unknown';
+    const resolvedSchema = allSchemas[refName];
+    if (resolvedSchema) {
+      return getPropertyType(resolvedSchema, allSchemas);
+    }
+    return 'unknown';
+  }
+  
+  // Now we know it's a SchemaObject
+  const schema = propSchema as OpenAPIV3.SchemaObject;
+  
+  if (schema.enum && Array.isArray(schema.enum)) {
+    let enumName = schema.title || ((schema as Record<string, unknown>)['x-enumNames'] as string[])?.[0] || 'Unknown';
     
     if (!enumName.startsWith('E_')) {
       enumName = `E_${enumName}`;
@@ -341,37 +392,37 @@ function getPropertyType(
     return `Enums.${enumName}`;
   }
   
-  if (propSchema.type === 'array') {
-    const itemType = propSchema.items ? getPropertyType(propSchema.items, allSchemas) : 'unknown';
+  if (schema.type === 'array') {
+    const itemType = schema.items ? getPropertyType(schema.items, allSchemas) : 'unknown';
     return `${itemType}[]`;
   }
   
-  if (propSchema.type === 'object') {
-    if (propSchema.additionalProperties) {
-      const valueType = getPropertyType(propSchema.additionalProperties, allSchemas);
+  if (schema.type === 'object') {
+    if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
+      const valueType = getPropertyType(schema.additionalProperties, allSchemas);
       return `Record<string, ${valueType}>`;
     }
     return 'object';
   }
   
-  if (propSchema.type === 'integer') {
+  if (schema.type === 'integer') {
     return 'number';
   }
   
-  if (propSchema.type === 'number') {
+  if (schema.type === 'number') {
     return 'number';
   }
   
-  if (propSchema.type === 'boolean') {
+  if (schema.type === 'boolean') {
     return 'boolean';
   }
   
-  if (propSchema.type === 'string') {
+  if (schema.type === 'string') {
     return 'string';
   }
   
-  if (propSchema.nullable) {
-    const baseType = getPropertyType({ ...propSchema, nullable: false }, allSchemas);
+  if (schema.nullable) {
+    const baseType = getPropertyType({ ...schema, nullable: false }, allSchemas);
     return `${baseType} | null`;
   }
   

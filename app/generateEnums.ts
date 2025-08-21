@@ -96,7 +96,7 @@ function generateEnumCode(
       key = createValidEnumKey(value as string);
     } else {
       // For numeric enums without names, try to create meaningful names
-      key = createMeaningfulNumericKey(enumName, value as number, index);
+      key = createMeaningfulNumericKey(enumName, value as number);
     }
     
     if (isStringEnum) {
@@ -126,7 +126,7 @@ function generateEnumCode(
   return enumCode;
 }
 
-function createMeaningfulNumericKey(enumName: string, value: number, index: number): string {
+function createMeaningfulNumericKey(enumName: string, value: number): string {
   // Custom mappings for your specific domain
   const customMappings: Record<string, Record<number, string>> = {
     'SortDirection': { 1: 'ASCENDING', 2: 'DESCENDING' },

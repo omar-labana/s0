@@ -1,5 +1,5 @@
 // Auto-generated interfaces from swagger.json
-// Generated on: 17:12 Wednesday 20 Aug 2025
+// Generated on: 09:23 Thursday 21 Aug 2025
 // Found 675 interface(s): IP_UpdateInternalOrganizationCommand, IP_UpdateProjectServiceRequest, I_StockTakingDto, I_ProblemDetails, I_PagedListOfStockTakingDto, I_TableOrder, IP_CreateStrategyManagementActionRequest, IP_CreateStrategyObjectiveActionRequest, I_GetAllStrategyObjectiveActionDto, I_PagedListOfPagedStrategyObjectiveActionDto, I_PagedStrategyObjectiveActionDto, IP_CreateStrategyObjectiveProjectRiskRequest, I_StrategyObjectiveProjectRiskDto, I_PagedListOfStrategyObjectiveProjectRiskDto, IP_UpdateRequest, IP_RecordMeetingProceedingsRequest, I_MeetingAttendeeUpdateRequest, IP_UpdateTenderAdminRequest, IP_UpdateWorkPlanItemRequest, IP_UpdateUserAssetRequest, IP_CreateUserAssetRequest, I_UnitUpdateDto, IP_UpdateUnitRequest, I_UnitListDto, I_CreatedUnitDto, IP_CreateUnitRequest, I_ListTenderTypeDto, IP_SendRFPToApproveRequest, IP_RestoreSpecificationsAndTermsVersionRequest, IP_UpdateSpecificationsAndTermsFileNameRequest, IP_UpdateTermsAndConditionsWebPathRequest, IP_UpdateTermsAndConditionsFileRequest, I_DeleteSpecificationsAndTermsRequest, IP_AddSpecificationsAndTermsRequest, IP_UpdateTenderPhaseRequest, I_PagedListOfListTenderPhaseEntity, I_BasePagedDto, I_GetTenderPhaseDto, IP_CreateTenderPhaseRequest, IP_UpdateTenderPhaseDefinitionRequest, IP_CreateTenderPhaseDefinitionRequest, IP_UpdateTenderMeetingTopicRequest, IP_CreateTenderMeetingTopicRequest, IP_CreateTenderInqueryByFileRequest, IP_UpdateTenderInqueryQuestionRequest, IP_UpdateTenderInqueryAnswerRequest, IP_CreateTenderInqueryRequest, IP_RequestTenderInqueryAnswerRequest, IP_UpdateTenderEvaluationRequest, I_ErrorResponse, I_TenderEvaluationDto, IP_CreateTenderEvaluationRequest, IP_UpdateDocumentFileWebPathRequest, IP_UpdateDocumentFileNameRequest, IP_UpdateDocumentFileRequest, IP_SendDocumentToApproveRequest, IP_RestoreDocumentVersionRequest, I_DeleteDocumentRequest, IP_AddDocumentRequest, IP_UpdateTenderComponantRequest, I_DeleteTenderComponentItemRequest, IP_AddParentRequest, IP_AddChildRequest, IP_UpdateFirstStepRequest, IP_UpdateTenderRequest, I_TenderPlannedPhaseItem, I_RequiredTraining, I_RelatedContract, I_ImplementationData, I_DurationItem, I_TenderImplementationPlanItem, IP_CreateTenderFirstStepRequest, IP_ManageTenderFourthStepRequest, I_RelatedContract2, I_RequiredTraining2, I_ImplementationData2, I_DurationItem2, I_TenderImplementationPlanItem2, IP_ManageTenderSecondStepRequest, IP_ManageTenderThirdStepRequest, I_TenderPlannedPhaseItem2, IP_SendToCompleteInfoTenderRequest, IP_MoveToRewardingRequest, IP_MoveToPreparationRequest, IP_MoveToContractingRequest, IP_MoveToApprovalsRequest, IP_MoveToAnnouncementRequest, IP_CreateTenderRequest, IP_CompleteTenderInfoRequest, IP_UpdateCompanyOfferFileNameRequest, IP_UpdateCompanyOfferFileRequest, IP_CreateCompanyOfferRequest, IP_AddCompanyOfferFileRequest, I_ResultOfPagedListOfTenderCommitteeParticipationPagedDTO, I_PagedListOfTenderCommitteeParticipationPagedDTO, I_ValidationError, I_AvailableCommitteeForTenderDTO, I_TenderCommitteeParticipationDto, IP_CreateTenderCommitteeParticipationRequest, IP_AddTenderCommitteeMemberRequest, IP_UpdateTenderCategoryRequest, I_PagedListOfPagedTenderCategoryEntity, I_ListTenderCategoryEntity, IP_CreateTenderCategoryRequest, IP_UpdateTenderActionRequest, I_PagedListOfTenderActionDto, I_TenderActionPhaseDto, IP_CreateTenderActionRequest, IP_UpdateTenderActionPhasesRequest, I_GetTenderActionPhaseInfoDto, IP_CreateTenderActionPhaseRequest, IP_UpdateWebPathRequest, IP_UpdateAttachmentDetailsRequest, IP_UpdateActionDetailFileRequest, IP_UpdateTenderActionDetailRequest, IP_CreateTenderActionSendGenralTC_ToFatwaRequest, IP_CreateTenderActionSendAnnounceRequestToCTCRequest, IP_CreateTenderActionRequestExtendBidsDeadlineRequest, IP_CreateTenderActionRequestCancelingRequest, I_CreateTenderActionRequestCancelingDTO, IP_CreateTenderActionRequestAnnouncementRequest, IP_CreateTenderActionReceivingCompanyQuestionsRequest, IP_CreateTenderActionReceivingCompanyComplaintsRequest, IP_CreateTenderActionReAnnouncementApprovalRequest, IP_CreateTenderActionCorresOutgoingRequest, IP_CreateTenderActionCorresIncomingRequest, IP_CreateTenderActionContractingApprovalRequest, IP_CreateTenderActionAwardingRequest, IP_CreateTenderActionAnnouncementRequest, IP_CreateTenderActionRecievingFatwaChangesRequest, IP_CreateTenderActionFatwaRequest, IP_CreateTenderActionReceivingAuditBureauInquiriesRequest, IP_CreateFile, IP_CreateTenderActionDetailRequest, IP_UpdateTelephoneTypeRequest, I_TelephoneTypeListDto, I_GetTelephoneTypeByIdDto, IP_CreateTelephoneTypeRequest, IP_UpdateTechGroupRequest, I_PagedListOfTechGroupPagedDto, I_TechGroupPagedDto, I_TechGroupDto, IP_CreateTechGroupRequest, IP_UpdateTaskAssignmentWebPathRequest, IP_UpdateTaskAssignmentFileRequest, IP_UpdateTaskAssignmentAttachmentRequest, IP_UpdateTaskAssignmentProgressRequest, IP_UpdateTaskAssignmentRequest, IP_RespondToRFPApprovalTaskRequest, IP_RespondToInvoiceApprovalTaskRequest, IP_RespondToDocumentApprovalTaskRequest, IP_RespondToContractReviewTaskRequest, IP_RespondToContractApprovalTaskRequest, I_PagedListOfPagedTaskAssignmentAttachmentEntity, I_AppUserDto, I_PagedListOfMyTaskAssignmentPagedEntity, IP_HideTaskAssignmentRequest, IP_ForwardTaskAssignmentRequest, I_DeleteTaskAssignmentFileRequest, IP_CreateTaskAssignmentRequest, IP_CompleteTaskAssignmentRequest, IP_AddTaskAssignmentAttachmentRequest, IP_AddNoteRequest, IP_UpdateTagsRequest, IP_CreateTagRequest, IP_UpdateSystemNotificationSettingRequest, I_UpdatedSubAgencyDto, IP_UpdateSubAgencyRequest, I_PagedListOfSubAgencyHistoryResponseDto, I_SubAgencyHistoryResponseDto, I_PagedListOfSubAgencyResponseDto, I_SubAgencyResponseDto, I_SubAgencyListDto, IP_DeactivateSubAgencyRequest, I_CreatedSubAgencyDto, IP_CreateSubAgencyRequest, IP_ActivateSubAgencyRequest, I_StrategyProgramDto, I_StrategyObjectiveStakeholderDto, I_StrategyObjectiveStakeholderDto2, IP_CreateStrategyObjectiveInternalOrganizationStakeholdersRequest, IP_CreateStrategyObjectiveAppUserStakeholdersRequest, IP_CreateStrategyObjectiveStakeholderRequest, IP_UpdateStrategyObjectiveRequest, I_PagedListOfPagedStrategyObjectiveDto, I_PagedStrategyObjectiveDto, I_PagedStrategyObjectiveResponsibleDto, I_PagedStrategyObjectiveDtoItemKpiDto, I_StrategyObjectivesSummaryDto, I_PagedListOfStrategyObjectiveInitiativeDto, I_StrategyObjectiveInitiativeDto, I_ResponsibleUserDto, I_StrategyObjectiveKpiDto, I_StrategyObjectiveItemDto, I_StrategyObjectiveDto, IP_EqualizeStrategyObjectiveSubObjectiveWeightsRequest, IP_EqualizeStrategyObjectiveResponsibleOrgUnitsWeightsRequest, IP_EqualizeStrategyObjectiveKpiWeightsRequest, IP_CreateStrategyObjectiveRequest, IP_UpdateRequest2, IP_CreateRequest, I_StrategyObjectiveProjectDto, IP_CreateStrategyObjectiveProjectRequest, IP_UpdateStrategyObjectiveKpiVariableValueRequest, IP_CreateStrategyObjectiveKpiVariableValueRequest, IP_BulkCreateStrategyObjectiveKpiVariableValueRequest, I_KpiVariableValueRequest, IP_UpdateStrategyObjectiveKpiRequest, IP_CreateStrategyObjectiveKpiRequest, I_StrategyObjectiveKpiMeasurementCycleDto, IP_UpdateStrategyObjectiveAttachmentRequest, IP_AddStrategyObjectiveAttachmentRequest, IP_UpdateStrategyObjectiveActionRequest, I_GetStrategyObjectiveActionByIdDto, IP_UpdateStrategyObjectiveActionAttachmentRequest, IP_AddStrategyObjectiveActionAttachmentRequest, IP_UpdateStrategyManagementActionRequest, I_PagedListOfPagedStrategyManagementActionDto, I_PagedStrategyManagementActionDto, I_StrategyManagementActionDto, IP_AddStrategyManagementActionFileRequest, IP_CreateStrategyBudgetItemRequest, IP_UpdateStrategyActionTypeRequest, I_PagedListOfPagedStrategyActionTypeDto, I_PagedStrategyActionTypeDto, I_GetAllStrategyActionTypesDto, I_GetStrategyActionTypeByIdDto, IP_CreateStrategyActionTypeRequest, IP_UpdateStrategyRequest, I_PagedListOfStrategyPagedDTO, I_HasDomainEventsBase, I_DomainEventBase, I_StrategyDto, IP_EqualizeStrategyObjectiveWeightsRequest, IP_CreateStrategyRequest, I_StrategicPlanDto, IP_UpdateStockTakingRequest, IP_CreateStockTakingRequest, IP_UpdateStatusRequest, I_PagedListOfStatusDto, I_StatusDto, IP_CreateStatusRequest, IP_UpdateRoleRequest, I_PagedListOfRolePagedListDto, I_RoleGetByIdDto, IP_CreateRoleRequest, I_GetRolePermissionsDto, IP_RolePermissionUpdateRequest, IP_UpdateRequestAssetLinkAssetRequest, IP_CreateRequestAssetLinkRequest, I_RelatedServiceDto, I_RelatedPillarDto, IP_UpdateQuestionsReceivingTypeRequest, IP_CreateQuestionsReceivingTypeRequest, IP_UpdatePurchaseTypeRequest, I_GetPurchaseTypeByIdDto, I_PurchaseTypeListDto, IP_CreatePurchaseTypeRequest, IP_UpdateProjectTargetRequest, I_ProjectTargetDto, IP_CreateProjectTargetRequest, IP_CreateProjectTargetGroupRequest, I_ProjectServiceDto, IP_CreateProjectServiceRequest, IP_UploadProjectMppFileRequest, IP_UpdateProjectTaskAssignmentProgressRequest, IP_UpdateProjectResponsiblesRequest, IP_UpdateProjectTaskAssignmentRequest, IP_UpdateProjectRequest, I_ProjectListDto, I_ProjectSummaryDto, I_ProjectObjectivesSummaryDto, I_ProjectKpisSummaryDto, I_ProjectDetailsDto, I_RelatedOrganizationalUnitDto, I_ProjectManagerDto, I_ProjectHumanResourceDto, I_ProjectRiskDto, I_ProjectOutputDto, I_ProjectParticipationDto, I_ProjectTargetGroupDto, I_ProjectGoalItemDto, I_KpiProjectPolicyDto, I_ProjectProgramDto, I_ProjectPolicyDto, I_ProjectPillarDto, IP_ForwardProjectTaskAssignmentRequest, IP_EqualizeTaskAssignmentsWeightsDueToDatesRequest, IP_EqualizeTaskAssignmentsWeightsRequest, IP_EqualizeProjectKpiWeightsRequest, IP_CreateProjectTaskAssignmentRequest, IP_CreateProjectRequest, IP_CompleteProjectTaskAssignmentRequest, IP_CreateProjectRiskRequest, IP_UpdateProjectRequirementRequest, I_ProjectRequirementDto, IP_CreateProjectRequirementRequest, IP_UpdateProjectRelatedInternalOrganizationRequest, IP_CreateProjectRelatedInternalOrganizationRequest, IP_CreateProjectProgramRequest, IP_UpdateProjectProgramRequest, IP_UpdateProjectPriorityRequest, IP_CreateProjectPriorityRequest, IP_UpdateProjectPolicyRequest, IP_CreateProjectPolicyRequest, IP_UpdateProjectPillarRequest, IP_CreateProjectPillarRequest, IP_CreateProjectParticipationRequest, I_ProjectOutputDto2, IP_CreateProjectOutputRequest, IP_UpdateProjectObstacleRequest, IP_CreateProjectObstacleRequest, IP_UpdateProjectKpiRequest, IP_CreateProjectKpiRequest, IP_UpdateProjectIssueRequest, I_PagedListOfProjectIssueDto, I_ProjectIssueDto, I_BasicUserDto, IP_CreateProjectIssueRequest, IP_UpdateProjectIssueAttachmentRequest, I_ResultOfListOfProjectIssueAttachmentDto, I_ProjectIssueAttachmentDto, I_ResultOfInt32, IP_AddProjectIssueAttachmentRequest, I_ProjectInitiativeDto, I_DeleteProjectInitiativeRequest, IP_CreateProjectInitiativeRequest, IP_UpdateProjectHumanResourceRequest, IP_CreateProjectHumanResourceRequest, IP_UpdateProjectGoalRequest, IP_CreateProjectGoalRequest, IP_CreateProjectGoalItemRequest, I_PagedListOfProjectContractDto, I_ProjectContractDto, IP_CreateProjectContractRequest, IP_UpdateProjectBudgetItemRequest, IP_CreateProjectBudgetItemRequest, IP_UpdateProjectAttachmentRequest, IP_AddProjectAttachmentRequest, IP_UpdateProjectAnnualBudgetRequest, IP_CreateProjectAnnualBudgetRequest, IP_UpdateSubProgramRequest, IP_UpdateProjectRequest2, IP_UpdateMainProgramRequest, I_PagedListOfProgramHistoryResponseDto, I_ProgramHistoryResponseDto, I_ListSubProgramEntity, I_ListMainProgramEntity, I_SubProgramDto, I_ProjectDto, I_MainProgramDto, I_ProgramListDto, IP_DeactivateProgramRequest, I_CreatedProgramDto, IP_CreateSubProgramRequest, IP_CreateProjectRequest2, IP_CreateMainProgramRequest, IP_ActivateProgramRequest, IP_UpdatePriorityRequest, I_PagedListOfPriorityPagedDto, I_PriorityPagedDto, I_PriorityDto, IP_CreatePriorityRequest, IP_UpdatePreliminaryMeetingAttendeeRequest, IP_UpdatePreliminaryMeetingRequest, I_RemovePreliminaryMeetingAttendeeRequest, IP_CreatePreliminaryMeetingRequest, IP_CancelPreliminaryMeetingRequest, IP_AddPreliminaryMeetingAttendeeRequest, I_AddPreliminaryMeetingAttendeeItemRequest, IP_UpdateMeetingAgendaRequest, IP_UpdateDiscussionRequest, IP_UpdateMeetingTopicDiscussionRequest, IP_CreateMeetingTopicDiscussionRequest, IP_UpdateMeetingTaskAssignmentRequest, IP_CreateMeetingTaskAssignmentRequest, IP_UpdateMeetingDecisionRequest, IP_AddMeetingDecisionRequest, IP_UpdateOtherBusinessNotesRequest, IP_UpdateCommitteMettingRequest, IP_UpdateMeetingRequest, IP_SendDocumentToApproveRequest2, IP_MarkMeetingAsCompletedRequest, IP_CreateCommitteMettingRequest, IP_CancelMeetingRequest, IP_AddOtherBusinessNotesRequest, IP_UpdateMeetingFileNameRequest, IP_UpdateMeetingFileRequest, IP_UpdateDocumentFileWebPathRequest2, IP_RestoreMeetingFileVersionRequest, IP_AddMeetingFileRequest, IP_UpdateMaintenanceVisitRequest, I_PagedListOfMaintenanceVisitDto, I_MaintenanceVisitDto, I_MaintenanceVisitListDto, IP_CreateMaintenanceVisitRequest, IP_UpdateMaintenanceEngineerRequest, IP_CreateMaintenanceEngineerRequest, IP_UpdateGovernorateRequest, IP_UpdateAreaRequest, I_PagedListOfLocationHistoryResponseDto, I_LocationHistoryResponseDto, I_PagedInfo, I_ResultOfLocationResponseDto, I_LocationResponseDto, I_ListGovermentEntity, I_ListAreaEntity, I_LocationListDto, I_CreatedLocationDto, IP_CreateLocationRequest, IP_AddAreaToGovernorateRequest, IP_UploadLicenceRequest, IP_UpdateKpiVariableRequest, IP_CreateKpiVariableRequest, IP_UpdateKpiRequest, IP_SetFlagValuesRequest, IP_SetEquationRequest, I_StrategyObjectiveEquationTag, I_KpiDto, IP_EqualizeSubKpisWeightsRequest, IP_CreateKpiRequest, IP_UpdateRequest3, IP_CreateRequest2, IP_CreateKpiProjectPolicyRequest, I_AssignedOrganizationResponse, IP_AddOrganizationsToKpiCommand, IP_UpdateJobTitleRequest, IP_CreateJobTitleRequest, I_ITRelationDto, IP_UpdateInvoiceRequest, IP_SendInvoiceToApproveRequest, IP_RegisterBankPaymentRequest, IP_CreateInvoiceRequest, I_NonRegisteredContractInfo, IP_UpdateInvitationRequest, IP_ToggleInternalOrganizationLockRequest, I_PagedListOfInternalOrganizationHistoryResponseDto, I_InternalOrganizationHistoryResponseDto, I_GetInternalOrganizationDto, IP_CreateInternalOrganizationRequest, I_InitiativeStrategyObjectiveDto, I_DeleteInitiativeStrategyObjectiveRequest, IP_CreateInitiativeStrategyObjectiveRequest, I_InitiativeStrategyObjectiveKpiDto, I_DeleteInitiativeStrategyObjectiveKpiRequest, IP_CreateInitiativeStrategyObjectiveKpiRequest, IP_UpdateInitiativeStandardRequest, I_InitiativeStandardDto, IP_CreateInitiativeStandardRequest, IP_UpdateInitiativeStakeholderRequest, IP_CreateInitiativeStakeholderRequest, IP_UpdateInitiativeResponsibleUserRequest, IP_UpdateInitiativeRequest, I_GetInitiativeDto, IP_CreateInitiativeRequest, IP_UpdateInitiativeOutputRequest, IP_UpdateProjectOutputRequest, I_InitiativeOutputListDto, I_InitiativeOutputDto, IP_CreateInitiativeOutputRequest, IP_UpdateInitiativeMilestoneRequest, I_InitiativeMilestoneDto, IP_CreateInitiativeMilestoneRequest, IP_UpdateInitiativeDeliverableRequest, I_InitiativeDeliverableDto, IP_CreateInitiativeDeliverableRequest, IP_UpdateInitiativeDecisionRequest, I_InitiativeDecisionDto, IP_CreateInitiativeDecisionRequest, I_InitiativeKpiDetailsDto, I_InitiativeKpiStatusSummaryDto, I_StrategyObjectivesDto, I_StrategyObjectivesItemKpiDto, IP_UpdateInitiativeBudgetItemRequest, IP_CreateInitiativeBudgetItemRequest, I_UpdateFunctionDto, IP_UpdateFunctionRequest, I_FunctionListDto, I_CreateFunctionDto, IP_CreateFunctionRequest, IP_UpdateExternalOrganizationCommand, I_GetExternalOrganizationDto, IP_CreateExternalOrganizationRequest, IP_UpdateExpectedResultRequest, I_PagedListOfPagedExpectedResultDto, I_PagedExpectedResultDto, I_ExpectedResultDto, I_ExpectedResultDto2, IP_CreateExpectedResultRequest, IP_UpdateEntitiesTagsRequest, IP_CreateEntitiesTagRequest, I_DevelopmentProgramDto, I_DevelopmentPlanProjectGoalDto, I_DevelopmentPlanGoalDto, I_DevelopmentalClassificationDto, IP_UpdateCurrencyRequest, I_CurrencyDto, IP_CreateCurrencyRequest, IP_UpdateContractDeliveryScheduleRequest, IP_CreateContractDeliveryScheduleRequest, IP_UploadContractPdfRequest, IP_UpdateContractPaymentRequest, I_AccountsCombinationItem, IP_UpdateContractPartiesRequest, IP_UpdateContractMonitorsRequest, I_CreateMonitorDto, IP_UpdateContractAccountCombinationRequest, IP_UpdateContractRequest, IP_SendContractToReviewRequest, IP_SendContractToApproveRequest, I_PagedListOfPagedContractDto, I_PagedContractDto, I_ContractListDto, I_ContractPaymentDto, I_ContractPaymentSchedulesDto, I_PaymentScheduleDto, I_ContractPartiesDto, I_GetSecondPartyDetailsDto, I_GetFirstPartyDetailsDto, I_ContractMonitorsDto, I_MonitorDto, I_ContractDeliverySchedulesDto, I_DeliveryScheduleDto, I_ContractClassificationDto, I_ContractDetailsDto, I_AvailableTenderDto, IP_CreateContractPaymentRequest, I_AccountsCombinationItem2, IP_CreateContractClassificationRequest, IP_CreateContractAttachmentContractRequest, IP_CreateContractRequest, I_RenewalRequiredContractsDto, I_ContractStatusSummaryDto, I_ContractPaymentRatioDto, I_ContractFinancialSummaryDto, IP_UpdateContractRequestRequest, I_PagedListOfContractRequestPagedDTO, I_ContractRequestPagedDTO, I_ContractRequestDto, IP_CreateContractRequestRequest, IP_UpdateContractRequestJustificationRequest, IP_UpdateContractRequestItemRequest, I_PagedListOfContractRequestItemPagedDTO, I_ContractRequestItemPagedDTO, IP_CreateContractRequestItemRequest, IP_UpdateContractAttachmentRequest, IP_AddContractRequestFileRequest, IP_UpdateContractPenalityRequest, I_PagedListOfContractPenalityDto, I_ContractPenalityDto, IP_CreateContractPenalityRequest, IP_UpdateContractClausesRequest, IP_SetCurrentVersionRequest, IP_UpdateContractChangeOrderRequest, IP_CreateContractChangeOrderRequest, I_ContractCategoryWithSubCategoriesDto, I_ContractSubCategoryDto, IP_ChangeContractSubCategoryTemplateRequest, IP_UpdateContractAttachmentRequest2, IP_AddContractFileRequest, I_PagedListOfContractActionLogDto, I_ContractActionLogDto, IP_UpdateCompanyOfferRequest, IP_AwardCompanyOfferRequest, IP_UpdateCompanyOfferEvaluationRequest, I_CompanyOfferEvaluationItemRequest, IP_CreateCompanyOfferEvaluationRequest, I_CompanyOfferEvaluationItemRequest2, IP_UpdateCompanyRequest, I_PagedListOfPagedCompanyEntity, I_ListCompanyEntity, I_CompanyDto, IP_CreateCompanyRequest, IP_CreateCommitteMeetingTopicRequest, IP_CreateCommitteMeetingAttendeeRequest, I_ListCommitteeTypeEntity, IP_UpdateEndCommitteeRequest, IP_UpdateCommitteeWebPathRequest, IP_UpdateCommitteeFileNameRequest, IP_UpdateCommitteeFileRequest, IP_UpdateCommitteeRequest, I_PagedListOfPagedCommitteeFileEntity, I_ModifierUser, I_CreatorUserDto, I_PagedListOfPagedCommitteeItem, I_ListCommitteeEntity, I_CommitteeTenderDTO, I_CommitteeDto, IP_CreateCommitteeRequest, IP_AddCommitteeFileRequest, IP_UpdateClassificationRequest, I_ClassificationDto, IP_CreateClassificationRequest, I_BudgetPlanPolicyDto, I_BudgetContractItemDto, IP_EditBudgetContractItemRequest, I_PagedListOfContractItemPagedDTO, I_ContractItemPagedDTO, IP_CreateContractItemRequest, IP_UpdateRequest4, I_BankDto, IP_CreateBankRequest, IP_UpdateBankGuaranteeRequest, I_BankGuaranteeDetailsDto, IP_CreateBankGuaranteeRequest, I_BalancedScorecardPerspectiveListDto, I_LoginResponse, IP_LoginRequest, IP_UpdateAttachmentTypeRequest, IP_CreateAttachmentTypeRequest, IP_UpdateServiceRequest, IP_CreateServiceRequest, IP_UpdateTechGroupServiceCategoryRequest, IP_UpdateOrderServiceCategoryRequest, IP_UpdateServiceCategoryRequest, IP_CreateServiceCategoryRequest, IP_AssignAdminServiceCategoryRequest, IP_UpdateAssetRequestTypeRequest, IP_CreateAssetRequestTypeRequest, IP_UpdateAssetRequestStatusRequest, IP_CreateAssetRequestStatusRequest, IP_UpdateAssetRequestStatusRequest2, IP_UpdateAssetRequestRequest, IP_CreateAssetRequestRequest, IP_ApproveAssetRequestRequest, IP_UpdateAssetDefinitionRequest, IP_CreateAssetDefinitionRequest, IP_UpdateAssetCategoryRequest, IP_CreateAssetCategoryRequest, I_PagedListOfAppUserPagedDTO, IP_UpdateUserSignatureRequest, IP_UpdateUserPhotoRequest, IP_UpdateUserProfileRequest, IP_UpdateAppUserRequest, IP_ResetPasswordRequestUser, I_ListAppUserEntity, I_GetAppUserByIdResponse, I_AppUserCreateDto, IP_ChangePasswordByAdminRequest, IP_UpdateAppDefinitionRequest, I_AppDefinitionListDto, IP_CreateAppDefinitionRequest, I_UpdatedAgencyDto, IP_UpdateAgencyRequest, I_PagedListOfAgencyListItem, I_AgencyDto, I_CreatedAgencyDto, IP_CreateAgencyRequest, IP_UpdateActionTypeRequest, IP_CreateActionTypeRequest, I_UpdatedAccountDto, IP_UpdateAccountRequest, I_PagedListOfAccountHistoryResponseDto, I_AccountHistoryResponseDto, I_PagedListOfAccountListItem, IP_OpenAccountRequest, I_AccountListDto, I_AccountParentInfoDto, I_AccountDetailsDto, I_AccountListFlatDto, IP_CreateCategoryAccountRequest, I_ItemAccountInfo, I_TypeAccountInfo, IP_CreateItemAccountRequest, IP_CreateTypeAccountRequest, IP_CloseAccountRequest, IP_BulkUpdateAccountCombinationAmountsRequest, I_BulkUpdateAccountCombinationAmountItemDto, I_PagedListOfAccountCombinationPagedDto, I_AccountCombinationPagedDto, IP_DeactivateAccountCombinationRequest, IP_CreateAccountCombinationRequest, IP_ActivateAccountCombinationRequest, I_PagedListOfAccountCombinationAuditLogDto, I_AccountCombinationAuditLogDto
 
 // Interface naming conventions:
@@ -39,7 +39,7 @@ export interface I_ProblemDetails {
 }
 
 export interface I_PagedListOfStockTakingDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -77,7 +77,7 @@ export interface I_GetAllStrategyObjectiveActionDto {
 }
 
 export interface I_PagedListOfPagedStrategyObjectiveActionDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -111,7 +111,7 @@ export interface I_StrategyObjectiveProjectRiskDto {
 }
 
 export interface I_PagedListOfStrategyObjectiveProjectRiskDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -128,7 +128,7 @@ export interface IP_RecordMeetingProceedingsRequest {
   id: number;
   actualStartDate: string;
   actualEndDate: string;
-  attendees: unknown[];
+  attendees: object[];
 }
 
 export interface I_MeetingAttendeeUpdateRequest {
@@ -376,7 +376,7 @@ export interface I_TenderEvaluationDto {
   proposalScore?: number;
   weight?: number;
   totalPoints?: number;
-  children?: unknown[];
+  children?: object[];
 }
 
 export interface IP_CreateTenderEvaluationRequest {
@@ -477,7 +477,7 @@ export interface IP_UpdateTenderRequest {
   alternativity: Enums.E_Alternativity;
   smaplesNeed: Enums.E_SmaplesNeed;
   negotiateMethod: Enums.E_NegotiateMethod;
-  tenderPhases?: unknown[];
+  tenderPhases?: object[];
   introductoryMeetingDate?: string;
   recivingQuestionsDate: string;
   sendingAnswersDate: string;
@@ -485,7 +485,7 @@ export interface IP_UpdateTenderRequest {
   relatedContract?: unknown | null;
   implementationDetails?: string;
   implementationData?: unknown | null;
-  tenderImplementationPlanItem?: unknown[];
+  tenderImplementationPlanItem?: object[];
   paymentDetails?: string;
   isSpecificOrCustom?: unknown | null;
 }
@@ -540,7 +540,7 @@ export interface IP_ManageTenderFourthStepRequest {
   requiredTraining?: unknown | null;
   implementationDetails?: string;
   implementationData?: unknown | null;
-  tenderImplementationPlanItem?: unknown[];
+  tenderImplementationPlanItem?: object[];
   paymentDetails?: string;
   isSpecificOrCustom?: unknown | null;
 }
@@ -588,7 +588,7 @@ export interface IP_ManageTenderSecondStepRequest {
 
 export interface IP_ManageTenderThirdStepRequest {
   tenderId: number;
-  tenderPhases?: unknown[];
+  tenderPhases?: object[];
   introductoryMeetingDate?: string;
   recivingQuestionsDate: string;
   sendingAnswersDate: string;
@@ -647,7 +647,7 @@ export interface IP_CreateTenderRequest {
   alternativity: Enums.E_Alternativity;
   smaplesNeed: Enums.E_SmaplesNeed;
   negotiateMethod: Enums.E_NegotiateMethod;
-  tenderPhases?: unknown[];
+  tenderPhases?: object[];
   introductoryMeetingDate?: string;
   recivingQuestionsDate: string;
   sendingAnswersDate: string;
@@ -655,7 +655,7 @@ export interface IP_CreateTenderRequest {
   relatedContract?: unknown | null;
   implementationDetails?: string;
   implementationData?: unknown | null;
-  tenderImplementationPlanItem?: unknown[];
+  tenderImplementationPlanItem?: object[];
   paymentDetails?: string;
   isSpecificOrCustom?: unknown | null;
 }
@@ -703,7 +703,7 @@ export interface I_ResultOfPagedListOfTenderCommitteeParticipationPagedDTO {
   correlationId?: string;
   location?: string;
   errors?: string[];
-  validationErrors?: unknown[];
+  validationErrors?: object[];
 }
 
 export interface I_PagedListOfTenderCommitteeParticipationPagedDTO {
@@ -1204,7 +1204,7 @@ export interface IP_UpdateTechGroupRequest {
 }
 
 export interface I_PagedListOfTechGroupPagedDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1386,7 +1386,7 @@ export interface IP_UpdateSubAgencyRequest {
 }
 
 export interface I_PagedListOfSubAgencyHistoryResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1406,7 +1406,7 @@ export interface I_SubAgencyHistoryResponseDto {
 }
 
 export interface I_PagedListOfSubAgencyResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1505,7 +1505,7 @@ export interface IP_UpdateStrategyObjectiveRequest {
 }
 
 export interface I_PagedListOfPagedStrategyObjectiveDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1526,7 +1526,7 @@ export interface I_PagedStrategyObjectiveDto {
   perspectiveCode: Enums.E_BalancedScorecardPerspectiveCodes;
   responsible?: unknown | null;
   stepIndicator: Enums.E_StrategyObjectiveStepIndicator;
-  kpis?: unknown[];
+  kpis?: object[];
   canBeDeleted?: boolean;
   parentStrategyObjectiveId?: number;
 }
@@ -1554,7 +1554,7 @@ export interface I_StrategyObjectivesSummaryDto {
 }
 
 export interface I_PagedListOfStrategyObjectiveInitiativeDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1677,7 +1677,7 @@ export interface IP_CreateStrategyObjectiveKpiVariableValueRequest {
 
 export interface IP_BulkCreateStrategyObjectiveKpiVariableValueRequest {
   strategyObjectiveKpiMeasurementCycleId: number;
-  values: unknown[];
+  values: object[];
 }
 
 export interface I_KpiVariableValueRequest {
@@ -1760,7 +1760,7 @@ export interface IP_UpdateStrategyManagementActionRequest {
 }
 
 export interface I_PagedListOfPagedStrategyManagementActionDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1803,7 +1803,7 @@ export interface IP_UpdateStrategyActionTypeRequest {
 }
 
 export interface I_PagedListOfPagedStrategyActionTypeDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1848,7 +1848,7 @@ export interface I_PagedListOfStrategyPagedDTO {
 }
 
 export interface I_HasDomainEventsBase {
-  domainEvents?: unknown[];
+  domainEvents?: object[];
 }
 
 export interface I_DomainEventBase {
@@ -1902,7 +1902,7 @@ export interface IP_UpdateStatusRequest {
 }
 
 export interface I_PagedListOfStatusDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -1958,7 +1958,7 @@ export interface I_GetRolePermissionsDto {
   isSelected?: boolean;
   isEditable?: boolean;
   parentPermissionId?: number;
-  children?: unknown[];
+  children?: object[];
 }
 
 export interface IP_RolePermissionUpdateRequest {
@@ -2174,22 +2174,22 @@ export interface I_ProjectDetailsDto {
   annualBudgetsNotes?: string;
   responsibleOrganizationalUnit?: unknown | null;
   projectManager?: unknown | null;
-  organizationalUnits?: unknown[];
+  organizationalUnits?: object[];
   organizationalUnitsCount?: number;
-  humanResources?: unknown[];
+  humanResources?: object[];
   humanResourcesCount?: number;
-  risks?: unknown[];
-  outputs?: unknown[];
-  projectParticipations?: unknown[];
-  projectTargetGroups?: unknown[];
-  quantitativeGoals?: unknown[];
-  qualitativeGoals?: unknown[];
-  kpiProjectPolicies?: unknown[];
-  projectPrograms?: unknown[];
-  projectServices?: unknown[];
-  projectTargets?: unknown[];
-  projectPolicies?: unknown[];
-  projectPillars?: unknown[];
+  risks?: object[];
+  outputs?: object[];
+  projectParticipations?: object[];
+  projectTargetGroups?: object[];
+  quantitativeGoals?: object[];
+  qualitativeGoals?: object[];
+  kpiProjectPolicies?: object[];
+  projectPrograms?: object[];
+  projectServices?: object[];
+  projectTargets?: object[];
+  projectPolicies?: object[];
+  projectPillars?: object[];
   totalExpectedOutputs?: number;
   achievedOutputs?: number;
   notAchievedOutputs?: number;
@@ -2499,7 +2499,7 @@ export interface IP_UpdateProjectIssueRequest {
 }
 
 export interface I_PagedListOfProjectIssueDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -2514,8 +2514,8 @@ export interface I_ProjectIssueDto {
   currentStateName?: string;
   projectId?: number;
   projectName?: string;
-  reportedBy?: unknown[];
-  assignedTo?: unknown[];
+  reportedBy?: object[];
+  assignedTo?: object[];
 }
 
 export interface I_BasicUserDto {
@@ -2541,14 +2541,14 @@ export interface IP_UpdateProjectIssueAttachmentRequest {
 }
 
 export interface I_ResultOfListOfProjectIssueAttachmentDto {
-  value?: unknown[];
+  value?: object[];
   status: Enums.E_ResultStatus;
   isSuccess?: boolean;
   successMessage?: string;
   correlationId?: string;
   location?: string;
   errors?: string[];
-  validationErrors?: unknown[];
+  validationErrors?: object[];
 }
 
 export interface I_ProjectIssueAttachmentDto {
@@ -2572,7 +2572,7 @@ export interface I_ResultOfInt32 {
   correlationId?: string;
   location?: string;
   errors?: string[];
-  validationErrors?: unknown[];
+  validationErrors?: object[];
 }
 
 export interface IP_AddProjectIssueAttachmentRequest {
@@ -2628,7 +2628,7 @@ export interface IP_CreateProjectGoalItemRequest {
 }
 
 export interface I_PagedListOfProjectContractDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -2698,7 +2698,7 @@ export interface IP_UpdateMainProgramRequest {
 }
 
 export interface I_PagedListOfProgramHistoryResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -2796,7 +2796,7 @@ export interface IP_UpdatePriorityRequest {
 }
 
 export interface I_PagedListOfPriorityPagedDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -2866,7 +2866,7 @@ export interface IP_AddPreliminaryMeetingAttendeeRequest {
   meetingId: number;
   actualStartDate?: string;
   actualEndDate?: string;
-  attendees?: unknown[];
+  attendees?: object[];
 }
 
 export interface I_AddPreliminaryMeetingAttendeeItemRequest {
@@ -3036,7 +3036,7 @@ export interface IP_UpdateMaintenanceVisitRequest {
 }
 
 export interface I_PagedListOfMaintenanceVisitDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -3115,7 +3115,7 @@ export interface IP_UpdateAreaRequest {
 }
 
 export interface I_PagedListOfLocationHistoryResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -3149,7 +3149,7 @@ export interface I_ResultOfLocationResponseDto {
   correlationId?: string;
   location?: string;
   errors?: string[];
-  validationErrors?: unknown[];
+  validationErrors?: object[];
 }
 
 export interface I_LocationResponseDto {
@@ -3235,7 +3235,7 @@ export interface IP_SetFlagValuesRequest {
 }
 
 export interface IP_SetEquationRequest {
-  equation: unknown[];
+  equation: object[];
 }
 
 export interface I_StrategyObjectiveEquationTag {
@@ -3360,7 +3360,7 @@ export interface IP_ToggleInternalOrganizationLockRequest {
 }
 
 export interface I_PagedListOfInternalOrganizationHistoryResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -3381,7 +3381,7 @@ export interface I_GetInternalOrganizationDto {
   titleAr?: string;
   titleEn?: string;
   isLocked?: boolean;
-  childOrganizations?: unknown[];
+  childOrganizations?: object[];
 }
 
 export interface IP_CreateInternalOrganizationRequest {
@@ -3631,7 +3631,7 @@ export interface I_StrategyObjectivesDto {
   progressIndicator: Enums.E_ProgressIndicator;
   canBeDeleted?: boolean;
   completionRatio?: number;
-  kpis?: unknown[];
+  kpis?: object[];
 }
 
 export interface I_StrategyObjectivesItemKpiDto {
@@ -3689,7 +3689,7 @@ export interface I_GetExternalOrganizationDto {
   id?: number;
   titleAr?: string;
   titleEn?: string;
-  childOrganizations?: unknown[];
+  childOrganizations?: object[];
 }
 
 export interface IP_CreateExternalOrganizationRequest {
@@ -3705,7 +3705,7 @@ export interface IP_UpdateExpectedResultRequest {
 }
 
 export interface I_PagedListOfPagedExpectedResultDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -3822,7 +3822,7 @@ export interface IP_UpdateContractPaymentRequest {
   dueDate: string;
   description?: string;
   deliverySchedulesIDs?: number[];
-  accountsCombinations: unknown[];
+  accountsCombinations: object[];
 }
 
 export interface I_AccountsCombinationItem {
@@ -3846,7 +3846,7 @@ export interface IP_UpdateContractPartiesRequest {
 
 export interface IP_UpdateContractMonitorsRequest {
   contractId?: number;
-  monitors?: unknown[];
+  monitors?: object[];
   relatedContractStatus?: unknown | null;
   relatedContractId?: number;
   classificationIds?: number[];
@@ -3892,7 +3892,7 @@ export interface IP_SendContractToApproveRequest {
 }
 
 export interface I_PagedListOfPagedContractDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -3932,7 +3932,7 @@ export interface I_ContractPaymentDto {
 
 export interface I_ContractPaymentSchedulesDto {
   contractId?: number;
-  payments?: unknown[];
+  payments?: object[];
 }
 
 export interface I_PaymentScheduleDto {
@@ -3969,7 +3969,7 @@ export interface I_GetFirstPartyDetailsDto {
 
 export interface I_ContractMonitorsDto {
   contractId?: number;
-  monitors?: unknown[];
+  monitors?: object[];
 }
 
 export interface I_MonitorDto {
@@ -3980,7 +3980,7 @@ export interface I_MonitorDto {
 
 export interface I_ContractDeliverySchedulesDto {
   contractId?: number;
-  schedules?: unknown[];
+  schedules?: object[];
 }
 
 export interface I_DeliveryScheduleDto {
@@ -4024,7 +4024,7 @@ export interface IP_CreateContractPaymentRequest {
   dueDate: string;
   description?: string;
   deliverySchedulesIDs?: number[];
-  accountsCombinationsItems?: unknown[];
+  accountsCombinationsItems?: object[];
 }
 
 export interface I_AccountsCombinationItem2 {
@@ -4096,7 +4096,7 @@ export interface IP_UpdateContractRequestRequest {
 }
 
 export interface I_PagedListOfContractRequestPagedDTO {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -4157,7 +4157,7 @@ export interface IP_UpdateContractRequestItemRequest {
 }
 
 export interface I_PagedListOfContractRequestItemPagedDTO {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -4201,7 +4201,7 @@ export interface IP_UpdateContractPenalityRequest {
 }
 
 export interface I_PagedListOfContractPenalityDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -4252,7 +4252,7 @@ export interface I_ContractCategoryWithSubCategoriesDto {
   nameAr?: string;
   nameEn?: string;
   code: Enums.E_ContractCategoryCodes;
-  subCategories?: unknown[];
+  subCategories?: object[];
 }
 
 export interface I_ContractSubCategoryDto {
@@ -4281,7 +4281,7 @@ export interface IP_AddContractFileRequest {
 }
 
 export interface I_PagedListOfContractActionLogDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -4315,7 +4315,7 @@ export interface IP_AwardCompanyOfferRequest {
 
 export interface IP_UpdateCompanyOfferEvaluationRequest {
   companyOfferId: number;
-  evaluations: unknown[];
+  evaluations: object[];
 }
 
 export interface I_CompanyOfferEvaluationItemRequest {
@@ -4326,7 +4326,7 @@ export interface I_CompanyOfferEvaluationItemRequest {
 
 export interface IP_CreateCompanyOfferEvaluationRequest {
   companyOfferId: number;
-  evaluations: unknown[];
+  evaluations: object[];
 }
 
 export interface I_CompanyOfferEvaluationItemRequest2 {
@@ -4520,7 +4520,7 @@ export interface IP_EditBudgetContractItemRequest {
 }
 
 export interface I_PagedListOfContractItemPagedDTO {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -4903,7 +4903,7 @@ export interface IP_UpdateAccountRequest {
 }
 
 export interface I_PagedListOfAccountHistoryResponseDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -5001,7 +5001,7 @@ export interface IP_CloseAccountRequest {
 }
 
 export interface IP_BulkUpdateAccountCombinationAmountsRequest {
-  accountCombinations: unknown[];
+  accountCombinations: object[];
 }
 
 export interface I_BulkUpdateAccountCombinationAmountItemDto {
@@ -5011,7 +5011,7 @@ export interface I_BulkUpdateAccountCombinationAmountItemDto {
 }
 
 export interface I_PagedListOfAccountCombinationPagedDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
@@ -5050,7 +5050,7 @@ export interface IP_ActivateAccountCombinationRequest {
 }
 
 export interface I_PagedListOfAccountCombinationAuditLogDto {
-  data?: unknown[];
+  data?: object[];
   currentPage?: number;
   pageSize?: number;
   totalCount?: number;
