@@ -1,5 +1,6 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
+import { $fetch, $Fetch } from "npm:ofetch";
 
 const main = defineCommand({
   meta: {

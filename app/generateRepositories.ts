@@ -87,7 +87,7 @@ export function generateRepositories() {
   });
 
   // Create repositories directory
-  const repositoriesDir = join(process.cwd(), 'repositories');
+  const repositoriesDir = join(process.cwd(), 'generated/repositories');
     mkdirSync(repositoriesDir, { recursive: true });
 
 
@@ -288,9 +288,6 @@ function mapSwaggerTypeToTypeScript(swaggerType: string, format?: string): strin
       return 'unknown';
   }
 }
-
-
-
 
 
 function formatTimestamp(date: Date): string {

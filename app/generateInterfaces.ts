@@ -83,18 +83,18 @@ export function generateInterfaces(components: Partial<OpenAPIV3.ComponentsObjec
 // IQ_ -> Query parameters (GET request objects)
 
 // Import all generated enums
-import * as Enums from './generated-enums.ts';
+import * as Enums from '@/generated/enums.ts';
 
 `;
 
   const finalOutput = header + interfacesOutput;
   
   // Write to file
-  writeFileSync("./generated-interfaces.ts", finalOutput);
+  writeFileSync("./generated/interfaces.ts", finalOutput);
   
   console.log(`✅ Generated ${foundInterfaces.length} interfaces:`);
   foundInterfaces.forEach(name => console.log(`  - ${name}`));
-  console.log("📝 Output saved to: generated-interfaces.ts");
+  console.log("📝 Output saved to: generated/interfaces.ts");
   
   return finalOutput;
 }

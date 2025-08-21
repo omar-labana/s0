@@ -63,11 +63,11 @@ export function generateEnum(components: Partial<OpenAPIV3.ComponentsObject>) {
   const finalOutput = header + enumsOutput;
   
   // Write to file
-  writeFileSync("./generated-enums.ts", finalOutput);
+  writeFileSync("./generated/enums.ts", finalOutput);
   
   console.log(`✅ Generated ${foundEnums.length} enums:`);
   foundEnums.forEach(name => console.log(`  - ${name}`));
-  console.log("📝 Output saved to: generated-enums.ts");
+  console.log("📝 Output saved to: enums.ts");
   
   return finalOutput;
 }

@@ -4,9 +4,10 @@
     "npm:@types/node@*": "24.2.0",
     "npm:citty@0.1.6": "0.1.6",
     "npm:consola@3.4.2": "3.4.2",
+    "npm:ofetch@1.4.1": "1.4.1",
     "npm:openapi-types@12.1.3": "12.1.3",
-    "npm:swagger-typescript-api@13.2.8": "13.2.8_@biomejs+wasm-nodejs@2.1.4",
-    "npm:swagger-typescript-api@^13.2.8": "13.2.8_@biomejs+wasm-nodejs@2.1.4"
+    "npm:scule@*": "1.3.0",
+    "npm:swagger-typescript-api@13.2.8": "13.2.8_@biomejs+wasm-nodejs@2.1.4"
   },
   "npm": {
     "@biomejs/js-api@2.0.3_@biomejs+wasm-nodejs@2.1.4": {
@@ -239,6 +240,14 @@
         "yaml"
       ]
     },
+    "ofetch@1.4.1": {
+      "integrity": "sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==",
+      "dependencies": [
+        "destr",
+        "node-fetch-native",
+        "ufo"
+      ]
+    },
     "ohash@2.0.11": {
       "integrity": "sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ=="
     },
@@ -274,6 +283,9 @@
     },
     "require-directory@2.1.1": {
       "integrity": "sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q=="
+    },
+    "scule@1.3.0": {
+      "integrity": "sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g=="
     },
     "should-equal@2.0.0": {
       "integrity": "sha512-ZP36TMrK9euEuWQYBig9W55WPC7uo37qzAEmbjHz4gfyuXrEUgF8cUvQVO+w+d3OMfPvSRQJ22lSm8MQJ43LTA==",
@@ -374,6 +386,9 @@
       "integrity": "sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==",
       "bin": true
     },
+    "ufo@1.6.1": {
+      "integrity": "sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA=="
+    },
     "undici-types@7.10.0": {
       "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
     },
@@ -421,8 +436,10 @@
     "dependencies": [
       "npm:citty@0.1.6",
       "npm:consola@3.4.2",
+      "npm:ofetch@1.4.1",
       "npm:openapi-types@12.1.3",
-      "npm:swagger-typescript-api@^13.2.8"
+      "npm:scule@1.3.0",
+      "npm:swagger-typescript-api@13.2.8"
     ]
   }
 }
