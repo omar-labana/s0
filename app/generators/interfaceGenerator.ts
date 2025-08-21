@@ -120,21 +120,25 @@ export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
     const requestBody = endpoint.requestBody as Record<string, unknown>;
     if (requestBody.content && typeof requestBody.content === "object") {
       const content = requestBody.content as Record<string, unknown>;
-      if (
-        content["application/json"] &&
-        typeof content["application/json"] === "object"
-      ) {
-        const jsonContent = content["application/json"] as Record<
-          string,
-          unknown
-        >;
-        if (jsonContent.schema && typeof jsonContent.schema === "object") {
-          const schema = jsonContent.schema as Record<string, unknown>;
-          if (schema.$ref) {
-            // Extract interface name from $ref
-            const ref = schema.$ref as string;
-            const schemaName = ref.split("/").pop() || "";
-            return convertSchemaNameToInterfaceName(schemaName);
+
+      // Check for different content types
+      const contentTypes = [
+        "application/json",
+        "multipart/form-data",
+        "application/x-www-form-urlencoded",
+      ];
+
+      for (const contentType of contentTypes) {
+        if (content[contentType] && typeof content[contentType] === "object") {
+          const contentData = content[contentType] as Record<string, unknown>;
+          if (contentData.schema && typeof contentData.schema === "object") {
+            const schema = contentData.schema as Record<string, unknown>;
+            if (schema.$ref) {
+              // Extract interface name from $ref
+              const ref = schema.$ref as string;
+              const schemaName = ref.split("/").pop() || "";
+              return convertSchemaNameToInterfaceName(schemaName);
+            }
           }
         }
       }
@@ -145,7 +149,13 @@ export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
 
 export function convertSchemaNameToInterfaceName(schemaName: string): string {
   // Convert schema names using configurable prefixes
-  if (schemaName.endsWith("Request") || schemaName.endsWith("Command")) {
+  // Use REQUEST prefix for interfaces that end with "Request" or have "Request" followed by numbers
+  if (
+    schemaName.endsWith("Request") ||
+    schemaName.endsWith("Command") ||
+    /Request\d*$/.test(schemaName) || // Matches "Request" followed by optional numbers at the end
+    /Command\d*$/.test(schemaName) // Matches "Command" followed by optional numbers at the end
+  ) {
     return `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
   } else if (schemaName.endsWith("Dto") || schemaName.endsWith("Response")) {
     return `${CONFIG.INTERFACE_PREFIXES.RESPONSE}${schemaName}`;

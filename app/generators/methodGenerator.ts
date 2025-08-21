@@ -64,8 +64,9 @@ export function generateMethodBody(endpoint: EndpointInfo): string {
     }
   }
 
-  // Add body for POST/PUT/PATCH methods
-  if (["post", "put", "patch"].includes(endpoint.method)) {
+  // Add body for POST/PUT/PATCH methods only if they have a request body
+  const hasRequestBody = getRequestBodyInterface(endpoint) !== null;
+  if (["post", "put", "patch"].includes(endpoint.method) && hasRequestBody) {
     options.push(`body: payload`);
   }
 
