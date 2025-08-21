@@ -75,7 +75,17 @@ export function generateMethodBody(endpoint: EndpointInfo): string {
     endpoint.parameters?.filter((param) => param.in === "path") || [];
   if (pathParams.length > 0) {
     pathParams.forEach((param) => {
-      path = path.replace(`{${param.name}}`, `\${${param.name}}`);
+      // Handle case sensitivity by using a more robust replacement
+      // Replace both exact match and case-insensitive match
+      const exactPattern = `{${param.name}}`;
+      const caseInsensitivePattern = new RegExp(`\\{${param.name}\\}`, "gi");
+
+      if (path.includes(exactPattern)) {
+        path = path.replace(exactPattern, `\${${param.name}}`);
+      } else {
+        // Try case-insensitive replacement
+        path = path.replace(caseInsensitivePattern, `\${${param.name}}`);
+      }
     });
   }
 

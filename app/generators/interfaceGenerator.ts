@@ -32,10 +32,48 @@ export function generateQueryInterfaceName(endpoint: EndpointInfo): string {
 
   const pathName = pathParts
     .map((part) => {
+      // Handle malformed paths where path parameters are not properly separated
+      // e.g., "{financialYearId}need-renewal" should be split into "{financialYearId}" and "need-renewal"
+      if (part.includes("{") && part.includes("}")) {
+        const segments: string[] = [];
+        let remaining = part;
+
+        while (remaining.length > 0) {
+          const paramStart = remaining.indexOf("{");
+          const paramEnd = remaining.indexOf("}");
+
+          if (paramStart !== -1 && paramEnd !== -1 && paramEnd > paramStart) {
+            // Add text before parameter (if any)
+            if (paramStart > 0) {
+              const beforeParam = remaining.substring(0, paramStart);
+              segments.push(pascalCase(beforeParam));
+            }
+
+            // Add parameter name
+            const paramName = remaining.substring(paramStart + 1, paramEnd);
+            segments.push(pascalCase(paramName));
+
+            // Continue with remaining text after parameter
+            remaining = remaining.substring(paramEnd + 1);
+          } else {
+            // No more parameters, add remaining text
+            if (remaining.length > 0) {
+              segments.push(pascalCase(remaining));
+            }
+            break;
+          }
+        }
+
+        return segments.join("");
+      }
+
+      // Regular path parameter
       if (part.startsWith("{") && part.endsWith("}")) {
         const paramName = part.slice(1, -1);
         return pascalCase(paramName);
       }
+
+      // Regular path segment
       return pascalCase(part);
     })
     .join("");
