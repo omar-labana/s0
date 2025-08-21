@@ -73,6 +73,11 @@ export function generateInterfaceContent(endpoint: EndpointInfo): string {
 }
 
 export function generateReturnType(endpoint: EndpointInfo): string {
+  // For DELETE methods, don't specify return type
+  if (endpoint.method === "delete") {
+    return "";
+  }
+
   // Try to determine return type from responses
   if (endpoint.responses && typeof endpoint.responses === "object") {
     const responses = endpoint.responses as Record<string, unknown>;

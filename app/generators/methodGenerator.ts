@@ -39,10 +39,10 @@ export function generateMethodSignature(endpoint: EndpointInfo): string {
 
   // Return Promise<unknown> since return type is now handled in fetchInstance
   if (params.length === 0) {
-    return `(): Promise<unknown>`;
+    return `()`;
   }
 
-  return `(${params.join(", ")}): Promise<unknown>`;
+  return `(${params.join(", ")})`;
 }
 
 export function generateMethodBody(endpoint: EndpointInfo): string {
@@ -80,6 +80,13 @@ export function generateMethodBody(endpoint: EndpointInfo): string {
 
   // Generate return type for fetchInstance
   const returnType = generateReturnType(endpoint);
+
+  // For DELETE methods, don't specify generic type
+  if (endpoint.method === "delete") {
+    return `return this.fetchInstance(\`${path}\`, {
+      ${options.join(",\n      ")}
+    });`;
+  }
 
   return `return this.fetchInstance<${returnType}>(\`${path}\`, {
       ${options.join(",\n      ")}

@@ -21,7 +21,7 @@ export function generateRepositoryContent(repository: RepositoryFile): string {
 // Found ${endpoints.length} endpoint(s)
 
 import { $Fetch } from "npm:ofetch";
-import * as Interfaces from "../interfaces.ts";
+import * as Interfaces from "@/interfaces";
 
 ${queryInterfaces}
 
