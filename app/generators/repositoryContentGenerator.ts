@@ -16,7 +16,10 @@ export function generateRepositoryContent(repository: RepositoryFile): string {
   // Generate IQ_ interfaces for GET and PUT methods
   const queryInterfaces = generateQueryInterfaces(endpoints);
 
-  const content = `// Auto-generated repository for ${tag} endpoints
+  // Normalize tag name for consistent formatting
+  const normalizedTagName = normalizeTagName(tag);
+
+  const content = `// Auto-generated repository for ${normalizedTagName} endpoints
 // Generated on: ${formatTimestamp(new Date())}
 // Found ${endpoints.length} endpoint(s)
 
@@ -25,7 +28,7 @@ import * as Interfaces from "@/interfaces";
 
 ${queryInterfaces}
 
-export class Repository${normalizeTagName(tag)} {
+export class Repository${normalizedTagName} {
   private fetchInstance: $Fetch;
 
   constructor(instance: $Fetch) {
@@ -40,9 +43,13 @@ ${generateRepositoryMethods(endpoints)}
 }
 
 export function normalizeTagName(tag: string): string {
-  return pascalCase(tag);
-}
+  // First clean the string, then apply scule.pascalCase
+  const cleanedTag = tag
+    .replace(/\s+/g, "") // Remove all whitespace
+    .replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters
 
+  return pascalCase(cleanedTag);
+}
 export function generateRepositoryMethods(endpoints: EndpointInfo[]): string {
   const methods: string[] = [];
 

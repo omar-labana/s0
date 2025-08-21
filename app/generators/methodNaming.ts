@@ -5,26 +5,18 @@ import { CONFIG } from "./config.ts";
 // Method naming logic for the repository generator
 
 export function generateMethodName(endpoint: EndpointInfo): string {
+  let methodName: string;
+
   // Use operationId if available and meaningful, otherwise generate from path
   if (endpoint.operationId && isValidOperationId(endpoint.operationId)) {
-    const operationIdName = convertOperationIdToMethodName(
-      endpoint.operationId
-    );
-
-    // Check if this operationId would create a duplicate method name
-    // If it's a common pattern like "ProjectContracts", use path-based naming instead
-    if (
-      operationIdName === "projectContracts" ||
-      operationIdName === "projectContract"
-    ) {
-      return generateMethodNameFromPath(endpoint);
-    }
-
-    return operationIdName;
+    methodName = convertOperationIdToMethodName(endpoint.operationId);
+  } else {
+    // Fallback to path-based naming
+    methodName = generateMethodNameFromPath(endpoint);
   }
 
-  // Fallback to path-based naming
-  return generateMethodNameFromPath(endpoint);
+  // Ensure the method has the correct prefix based on HTTP method
+  return ensureMethodPrefix(methodName, endpoint.method);
 }
 
 export function isValidOperationId(operationId: string): boolean {
@@ -39,20 +31,28 @@ export function isValidOperationId(operationId: string): boolean {
 }
 
 export function convertOperationIdToMethodName(operationId: string): string {
-  // Remove common prefixes and suffixes
+  // Remove common prefixes and suffixes, but be careful with "get" for GET methods
   const cleanName = operationId
-    .replace(/^(get|post|put|patch|delete)/i, "") // Remove HTTP method prefix
     .replace(/Endpoint$/, "") // Remove "Endpoint" suffix
     .replace(/Features$/, "") // Remove "Features" suffix
-    .replace(/^(Paged|List|Create|Update|Delete|Get)/, ""); // Remove common action prefixes
+    .replace(/^(Paged|List|Create|Update|Delete)/, ""); // Remove common action prefixes
+
+  // Clean the name by removing spaces and special characters
+  const cleanedName = cleanName
+    .replace(/\s+/g, "") // Remove all whitespace
+    .replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters
 
   // If we have a meaningful name left, use it
-  if (cleanName.length > 0) {
-    return camelCase(cleanName);
+  if (cleanedName.length > 0) {
+    return camelCase(cleanedName);
   }
 
-  // Fallback to original operationId
-  return camelCase(operationId);
+  // Fallback to original operationId (cleaned)
+  const cleanedOperationId = operationId
+    .replace(/\s+/g, "") // Remove all whitespace
+    .replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters
+
+  return camelCase(cleanedOperationId);
 }
 
 export function generateMethodNameFromPath(endpoint: EndpointInfo): string {
@@ -65,6 +65,29 @@ export function generateMethodNameFromPath(endpoint: EndpointInfo): string {
   const pathName = buildPathName(pathParts);
 
   return `${prefix}${pathName}`;
+}
+
+// New function to ensure consistent method naming
+export function ensureMethodPrefix(
+  methodName: string,
+  httpMethod: string
+): string {
+  const method = httpMethod.toLowerCase();
+
+  // For GET methods, ensure they start with "get"
+  if (method === "get" && !methodName.startsWith("get")) {
+    return `get${methodName.charAt(0).toUpperCase() + methodName.slice(1)}`;
+  }
+
+  // For other methods, ensure they have the correct prefix
+  const prefix = getMethodPrefix(method);
+  if (!methodName.startsWith(prefix)) {
+    return `${prefix}${
+      methodName.charAt(0).toUpperCase() + methodName.slice(1)
+    }`;
+  }
+
+  return methodName;
 }
 
 function buildPathName(pathParts: string[]): string {
@@ -93,8 +116,14 @@ function buildPathName(pathParts: string[]): string {
       // to the method name, but we continue processing the remaining parts
       // e.g., /accounts/{id}/parents -> getAccountsParents
     } else {
-      // Regular path part, add it normally
-      result.push(pascalCase(part));
+      // Regular path part, clean it and apply PascalCase
+      const cleanedPart = part
+        .replace(/\s+/g, "") // Remove all whitespace
+        .replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters
+
+      if (cleanedPart.length > 0) {
+        result.push(pascalCase(cleanedPart));
+      }
     }
   }
 
