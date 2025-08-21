@@ -1,2 +1,5 @@
-repositories/
-
+# Generated files
+generated/
+generated/enums.ts
+generated/interfaces.ts
+generated/repositories/
