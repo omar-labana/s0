@@ -218,15 +218,15 @@ export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
 export function convertSchemaNameToInterfaceName(schemaName: string): string {
   // Convert schema names using configurable prefixes
   // Use REQUEST prefix for interfaces that end with "Request" or have "Request" followed by numbers
+  // OR contain "Request" in the name (like "ResetPasswordRequestUser")
   if (
     schemaName.endsWith("Request") ||
     schemaName.endsWith("Command") ||
     /Request\d*$/.test(schemaName) || // Matches "Request" followed by optional numbers at the end
-    /Command\d*$/.test(schemaName) // Matches "Command" followed by optional numbers at the end
+    /Command\d*$/.test(schemaName) || // Matches "Command" followed by optional numbers at the end
+    schemaName.includes("Request") // Matches any name containing "Request" (like "ResetPasswordRequestUser")
   ) {
-    const result = `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
-    console.log(`🔧 Converting ${schemaName} -> ${result}`);
-    return result;
+    return `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
   } else if (schemaName.endsWith("Dto") || schemaName.endsWith("Response")) {
     return `${CONFIG.INTERFACE_PREFIXES.RESPONSE}${schemaName}`;
   } else {
