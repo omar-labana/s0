@@ -13,6 +13,9 @@
     "swagger-typescript-api": "npm:swagger-typescript-api@13.2.8",
     "@/*": "./*",
     "@/app/*": "./app/*",
-    "@/generated/*": "./generated/*"
+    "@/generated/*": "./generated/*",
+    "@/enums": "./generated/enums.ts",
+    "@/interfaces": "./generated/interfaces.ts",
+    "@/repositories": "./generated/repositories.ts"
   }
 }

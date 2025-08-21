@@ -83,7 +83,7 @@ export function generateInterfaces(components: Partial<OpenAPIV3.ComponentsObjec
 // IQ_ -> Query parameters (GET request objects)
 
 // Import all generated enums
-import * as Enums from '@/generated/enums.ts';
+import * as Enums from '@enums.ts';
 
 `;
 
