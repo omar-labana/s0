@@ -26,6 +26,7 @@ export interface EndpointInfo {
   parameters?: ParameterInfo[];
   requestBody?: unknown;
   responses?: unknown;
+  xName?: string; // Add x-name field from request body
 }
 
 export interface RepositoryFile {

@@ -15,6 +15,15 @@ export function getPropertyType(
     const refName = propSchema.$ref.split("/").pop() || "unknown";
     const resolvedSchema = allSchemas[refName];
     if (resolvedSchema) {
+      // Check if this is an enum schema
+      if (
+        !("$ref" in resolvedSchema) &&
+        (resolvedSchema as OpenAPIV3.SchemaObject).enum &&
+        Array.isArray((resolvedSchema as OpenAPIV3.SchemaObject).enum)
+      ) {
+        // This is an enum schema, return the correct enum reference
+        return `Enums.E_${refName}`;
+      }
       return getPropertyType(resolvedSchema, allSchemas);
     }
     return "unknown";
@@ -139,14 +148,16 @@ export function handleInheritance(
       if ("$ref" in inheritedSchema) {
         const refName = inheritedSchema.$ref.split("/").pop() || `Base${index}`;
 
-        const isEnum =
-          allSchemas[refName] &&
-          !("$ref" in allSchemas[refName]) &&
-          (allSchemas[refName] as OpenAPIV3.SchemaObject).enum &&
-          Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
+        const resolvedSchema = allSchemas[refName];
+        if (resolvedSchema && !("$ref" in resolvedSchema)) {
+          const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+          const isEnum = schemaObj.enum && Array.isArray(schemaObj.enum);
 
-        if (isEnum) {
-          extendsList.push(`Enums.E_${refName}`);
+          if (isEnum) {
+            extendsList.push(`Enums.E_${refName}`);
+          } else {
+            extendsList.push(`I_${refName}`);
+          }
         } else {
           extendsList.push(`I_${refName}`);
         }
@@ -173,15 +184,17 @@ export function handleInheritance(
       Object.entries(schema.properties).forEach(([propName, propSchema]) => {
         if ("$ref" in propSchema) {
           const refName = propSchema.$ref.split("/").pop() || "unknown";
+          const resolvedSchema = allSchemas[refName];
 
-          const isEnum =
-            allSchemas[refName] &&
-            !("$ref" in allSchemas[refName]) &&
-            (allSchemas[refName] as OpenAPIV3.SchemaObject).enum &&
-            Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
+          if (resolvedSchema && !("$ref" in resolvedSchema)) {
+            const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+            const isEnum = schemaObj.enum && Array.isArray(schemaObj.enum);
 
-          if (isEnum) {
-            properties.push(`  ${propName}: Enums.E_${refName};`);
+            if (isEnum) {
+              properties.push(`  ${propName}: Enums.E_${refName};`);
+            } else {
+              properties.push(`  ${propName}: I_${refName};`);
+            }
           } else {
             properties.push(`  ${propName}: I_${refName};`);
           }

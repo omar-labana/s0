@@ -171,8 +171,20 @@ export function generateReturnType(endpoint: EndpointInfo): string {
 }
 
 export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
+  // Check for xName field first (explicit interface name from endpoint)
+  if (endpoint.xName && typeof endpoint.xName === "string") {
+    return convertSchemaNameToInterfaceName(endpoint.xName);
+  }
+
   if (endpoint.requestBody && typeof endpoint.requestBody === "object") {
     const requestBody = endpoint.requestBody as Record<string, unknown>;
+
+    // Check for x-name field in request body (fallback)
+    if (requestBody["x-name"] && typeof requestBody["x-name"] === "string") {
+      const xName = requestBody["x-name"] as string;
+      return convertSchemaNameToInterfaceName(xName);
+    }
+
     if (requestBody.content && typeof requestBody.content === "object") {
       const content = requestBody.content as Record<string, unknown>;
 
@@ -199,6 +211,7 @@ export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
       }
     }
   }
+
   return null;
 }
 
@@ -211,7 +224,9 @@ export function convertSchemaNameToInterfaceName(schemaName: string): string {
     /Request\d*$/.test(schemaName) || // Matches "Request" followed by optional numbers at the end
     /Command\d*$/.test(schemaName) // Matches "Command" followed by optional numbers at the end
   ) {
-    return `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
+    const result = `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
+    console.log(`🔧 Converting ${schemaName} -> ${result}`);
+    return result;
   } else if (schemaName.endsWith("Dto") || schemaName.endsWith("Response")) {
     return `${CONFIG.INTERFACE_PREFIXES.RESPONSE}${schemaName}`;
   } else {

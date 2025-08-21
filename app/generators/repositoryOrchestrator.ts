@@ -37,6 +37,16 @@ export function generateRepositories(swagger: OpenAPIV3.Document) {
       const requestBody = operationObj.requestBody;
       const responses = operationObj.responses;
 
+      // Extract x-name from request body if available
+      let xName: string | undefined;
+      if (requestBody && typeof requestBody === "object") {
+        const requestBodyObj = requestBody as Record<string, unknown>;
+        xName = requestBodyObj["x-name"] as string;
+        if (xName && path.includes("/Users/")) {
+          console.log(`🔍 Users endpoint ${path}: x-name = ${xName}`);
+        }
+      }
+
       if (tags.length > 0) {
         tags.forEach((tag) => {
           if (!repositories.has(tag)) {
@@ -54,6 +64,7 @@ export function generateRepositories(swagger: OpenAPIV3.Document) {
             parameters,
             requestBody,
             responses,
+            xName,
           });
         });
       }

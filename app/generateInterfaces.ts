@@ -31,8 +31,9 @@ export function generateInterfaces(components: Partial<OpenAPIV3.ComponentsObjec
       return;
     }
 
-    // Check if schema has properties - this is an INTERFACE
-    if (schema.properties && Object.keys(schema.properties).length > 0) {
+    // Check if schema has properties OR uses inheritance (allOf, oneOf, anyOf) OR is an empty object - this is an INTERFACE
+    if (schema.properties || schema.allOf || schema.oneOf || schema.anyOf || 
+        (schema.type === 'object' && !schema.enum)) {
       const usage = schemaUsage.get(schemaName) || {
         name: schemaName,
         isRequest: false,

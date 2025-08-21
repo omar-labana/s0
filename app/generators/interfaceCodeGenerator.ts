@@ -46,14 +46,17 @@ export function generateInterfaceCode(
       if ("$ref" in propSchema) {
         const refName = propSchema.$ref.split("/").pop() || "unknown";
 
-        const isEnum =
-          allSchemas[refName] &&
-          !("$ref" in allSchemas[refName]) &&
-          (allSchemas[refName] as OpenAPIV3.SchemaObject).enum &&
-          Array.isArray((allSchemas[refName] as OpenAPIV3.SchemaObject).enum);
+        const resolvedSchema = allSchemas[refName];
+        if (resolvedSchema && !("$ref" in resolvedSchema)) {
+          const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+          const isEnum = schemaObj.enum && Array.isArray(schemaObj.enum);
 
-        if (isEnum) {
-          interfaceCode += `  ${propName}?: Enums.E_${refName};\n`;
+          if (isEnum) {
+            interfaceCode += `  ${propName}?: Enums.E_${refName};\n`;
+          } else {
+            // This is an interface reference, prefix it with I_
+            interfaceCode += `  ${propName}?: I_${refName};\n`;
+          }
         } else {
           // This is an interface reference, prefix it with I_
           interfaceCode += `  ${propName}?: I_${refName};\n`;
