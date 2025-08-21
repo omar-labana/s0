@@ -1,6 +1,8 @@
 import swagger from "../swagger.json" with { type: "json" };
 import type { OpenAPIV3 } from "openapi-types";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
+import process from "node:process";
 
 // Type for schemas with custom enum properties
 type SchemaWithCustomProps = OpenAPIV3.SchemaObject & {
@@ -61,6 +63,10 @@ export function generateEnum(components: Partial<OpenAPIV3.ComponentsObject>) {
   const header = `// Generated on: ${formatTimestamp(new Date())}\n\n`;
 
   const finalOutput = header + enumsOutput;
+  
+  // Create generated directory if it doesn't exist
+  const generatedDir = join(process.cwd(), "generated");
+  mkdirSync(generatedDir, { recursive: true });
   
   // Write to file
   writeFileSync("./generated/enums.ts", finalOutput);

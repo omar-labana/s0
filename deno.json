@@ -16,6 +16,7 @@
     "@/generated/*": "./generated/*",
     "@/enums": "./generated/enums.ts",
     "@/interfaces": "./generated/interfaces.ts",
-    "@/repositories": "./generated/repositories.ts"
+    "@/repositories": "./generated/repositories.ts",
+    "@/swagger": "./swagger.json"
   }
 }

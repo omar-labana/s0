@@ -1,6 +1,8 @@
 import swagger from "../swagger.json" with { type: "json" };
 import type { OpenAPIV3 } from "openapi-types";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
+import process from "node:process";
 
 // Type for schemas with custom properties
 type SchemaWithCustomProps = OpenAPIV3.SchemaObject & {
@@ -83,11 +85,15 @@ export function generateInterfaces(components: Partial<OpenAPIV3.ComponentsObjec
 // IQ_ -> Query parameters (GET request objects)
 
 // Import all generated enums
-import * as Enums from '@enums.ts';
+import * as Enums from '@/enums';
 
 `;
 
   const finalOutput = header + interfacesOutput;
+  
+  // Create generated directory if it doesn't exist
+  const generatedDir = join(process.cwd(), "generated");
+  mkdirSync(generatedDir, { recursive: true });
   
   // Write to file
   writeFileSync("./generated/interfaces.ts", finalOutput);
