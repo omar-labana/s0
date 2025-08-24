@@ -6,6 +6,7 @@ import {
   generateHeaderComment,
   writeInterfacesToFile,
   logGenerationResults,
+  SchemaUsage,
 } from "./generators/index.ts";
 
 export function generateInterfaces(
@@ -27,7 +28,11 @@ export function generateInterfaces(
   const processedSchemas = new Set<string>();
 
   // First pass: collect all potential interfaces (including base classes)
-  const interfaceSchemas: Array<{ name: string; schema: any; usage: any }> = [];
+  const interfaceSchemas: Array<{
+    name: string;
+    schema: OpenAPIV3.SchemaObject;
+    usage: SchemaUsage;
+  }> = [];
 
   Object.entries(schemas).forEach(([schemaName, schema]) => {
     // Skip $ref objects and pure enums
@@ -53,7 +58,7 @@ export function generateInterfaces(
       schema.oneOf ||
       schema.anyOf ||
       (schema.type === "object" && !schema.enum) ||
-      (schema as any)["x-abstract"] === true ||
+      (schema as Record<string, unknown>)["x-abstract"] === true ||
       isReferencedByOtherSchemas(schemaName, schemas) ||
       // Additional check: if the schema name suggests it's a base class
       schemaName.includes("Base") ||
@@ -82,13 +87,25 @@ export function generateInterfaces(
     return 0;
   });
 
-  // Generate interfaces
+  // Create a lookup table of interface names for proper referencing
+  const interfaceNameLookup = new Map<string, string>();
+  interfaceSchemas.forEach(({ name: schemaName, schema, usage }) => {
+    const interfaceName = determineInterfaceName(schemaName, usage, schema);
+    interfaceNameLookup.set(schemaName, interfaceName);
+  });
+
+  // Generate interfaces with proper name lookup
   interfaceSchemas.forEach(({ name: schemaName, schema, usage }) => {
     // Determine interface type based on usage analysis and schema structure
     const interfaceName = determineInterfaceName(schemaName, usage, schema);
 
-    // Generate TypeScript interface
-    const interfaceCode = generateInterfaceCode(interfaceName, schema, schemas);
+    // Generate TypeScript interface with name lookup for proper referencing
+    const interfaceCode = generateInterfaceCode(
+      interfaceName,
+      schema,
+      schemas,
+      interfaceNameLookup
+    );
     interfacesOutput += interfaceCode + "\n\n";
     foundInterfaces.push(interfaceName);
     processedSchemas.add(schemaName);
@@ -117,7 +134,7 @@ export function generateInterfaces(
  */
 function isReferencedByOtherSchemas(
   schemaName: string,
-  schemas: Record<string, any>
+  schemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
 ): boolean {
   // Check for direct $ref references
   const refPattern = `#/components/schemas/${schemaName}`;
@@ -147,16 +164,22 @@ function isReferencedByOtherSchemas(
 /**
  * Determines if a schema is a base interface (should be generated first)
  */
-function isBaseInterface(schema: any, schemas: Record<string, any>): boolean {
+function isBaseInterface(
+  schema: OpenAPIV3.SchemaObject,
+  schemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
+): boolean {
   // Abstract classes
-  if (schema["x-abstract"] === true) {
+  if ((schema as Record<string, unknown>)["x-abstract"] === true) {
     return true;
   }
 
   // Schemas that only have allOf with $ref (base entity pattern)
   if (schema.allOf && schema.allOf.length > 0) {
     const hasOnlyRefAndMinimalProperties =
-      schema.allOf.some((item: any) => item.$ref) &&
+      schema.allOf.some(
+        (item: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject) =>
+          "$ref" in item && item.$ref
+      ) &&
       (!schema.properties || Object.keys(schema.properties).length === 0);
     if (hasOnlyRefAndMinimalProperties) {
       return true;

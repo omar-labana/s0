@@ -5,7 +5,11 @@ import type { SchemaUsage } from "./schemaAnalyzer.ts";
 export function generateInterfaceCode(
   interfaceName: string,
   schema: OpenAPIV3.SchemaObject,
-  allSchemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
+  allSchemas: Record<
+    string,
+    OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
+  >,
+  interfaceNameLookup?: Map<string, string>
 ): string {
   let interfaceCode = `export interface ${interfaceName} {\n`;
 
@@ -15,7 +19,8 @@ export function generateInterfaceCode(
       interfaceName,
       schema,
       allSchemas,
-      "allOf"
+      "allOf",
+      interfaceNameLookup
     );
     return interfaceCode;
   }
@@ -25,7 +30,8 @@ export function generateInterfaceCode(
       interfaceName,
       schema,
       allSchemas,
-      "oneOf"
+      "oneOf",
+      interfaceNameLookup
     );
     return interfaceCode;
   }
@@ -35,7 +41,8 @@ export function generateInterfaceCode(
       interfaceName,
       schema,
       allSchemas,
-      "anyOf"
+      "anyOf",
+      interfaceNameLookup
     );
     return interfaceCode;
   }
@@ -54,15 +61,23 @@ export function generateInterfaceCode(
           if (isEnum) {
             interfaceCode += `  ${propName}?: Enums.E_${refName};\n`;
           } else {
-            // This is an interface reference, prefix it with I_
-            interfaceCode += `  ${propName}?: I_${refName};\n`;
+            // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+            const correctInterfaceName =
+              interfaceNameLookup?.get(refName) || `I_${refName}`;
+            interfaceCode += `  ${propName}?: ${correctInterfaceName};\n`;
           }
         } else {
-          // This is an interface reference, prefix it with I_
-          interfaceCode += `  ${propName}?: I_${refName};\n`;
+          // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+          const correctInterfaceName =
+            interfaceNameLookup?.get(refName) || `I_${refName}`;
+          interfaceCode += `  ${propName}?: ${correctInterfaceName};\n`;
         }
       } else {
-        const propType = getPropertyType(propSchema, allSchemas);
+        const propType = getPropertyType(
+          propSchema,
+          allSchemas,
+          interfaceNameLookup
+        );
         const isRequired = schema.required?.includes(propName) || false;
         const optionalMarker = isRequired ? "" : "?";
 

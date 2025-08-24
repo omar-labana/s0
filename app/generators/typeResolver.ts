@@ -7,52 +7,39 @@ export type SchemaWithCustomProps = OpenAPIV3.SchemaObject & {
 };
 
 export function getPropertyType(
-  propSchema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  allSchemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  allSchemas: Record<
+    string,
+    OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
+  >,
+  interfaceNameLookup?: Map<string, string>
 ): string {
-  // If it's a reference, we need to resolve it first
-  if ("$ref" in propSchema) {
-    const refName = propSchema.$ref.split("/").pop() || "unknown";
+  // Handle $ref schemas
+  if ("$ref" in schema) {
+    const refName = schema.$ref.split("/").pop() || "unknown";
     const resolvedSchema = allSchemas[refName];
     if (resolvedSchema) {
-      // Check if this is an enum schema
-      if (
-        !("$ref" in resolvedSchema) &&
-        (resolvedSchema as OpenAPIV3.SchemaObject).enum &&
-        Array.isArray((resolvedSchema as OpenAPIV3.SchemaObject).enum)
-      ) {
-        // This is an enum schema, return the correct enum reference
-        return `Enums.E_${refName}`;
-      }
-      return getPropertyType(resolvedSchema, allSchemas);
-    }
-    return "unknown";
-  }
-
-  // Now we know it's a SchemaObject
-  const schema = propSchema as OpenAPIV3.SchemaObject;
-
-  // Handle allOf schemas (common pattern for navigation properties)
-  if (schema.allOf && Array.isArray(schema.allOf)) {
-    // Look for $ref in allOf
-    const refSchema = schema.allOf.find((item) => "$ref" in item);
-    if (refSchema && "$ref" in refSchema) {
-      const refName = refSchema.$ref.split("/").pop() || "unknown";
-      const resolvedSchema = allSchemas[refName];
-      if (resolvedSchema) {
-        // Check if this is an enum schema
-        if (
-          !("$ref" in resolvedSchema) &&
-          (resolvedSchema as OpenAPIV3.SchemaObject).enum &&
-          Array.isArray((resolvedSchema as OpenAPIV3.SchemaObject).enum)
-        ) {
+      if ("$ref" in resolvedSchema) {
+        return getPropertyType(resolvedSchema, allSchemas, interfaceNameLookup);
+      } else {
+        const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+        if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
           return `Enums.E_${refName}`;
+        } else if (schemaObj.type === "object" || schemaObj.properties) {
+          // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+          const correctInterfaceName =
+            interfaceNameLookup?.get(refName) || `I_${refName}`;
+          return correctInterfaceName;
         } else {
-          return `I_${refName}`;
+          return getPropertyType(
+            resolvedSchema,
+            allSchemas,
+            interfaceNameLookup
+          );
         }
       }
-      return `I_${refName}`;
     }
+    return `I_${refName}`;
   }
 
   // Handle oneOf schemas
@@ -64,22 +51,29 @@ export function getPropertyType(
         const resolvedSchema = allSchemas[refName];
         if (resolvedSchema) {
           if ("$ref" in resolvedSchema) {
-            oneOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+            oneOfTypes.push(
+              getPropertyType(resolvedSchema, allSchemas, interfaceNameLookup)
+            );
           } else {
             const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
             if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
-              // This is an enum schema
               oneOfTypes.push(`Enums.E_${refName}`);
             } else if (schemaObj.type === "object" || schemaObj.properties) {
-              // This is an object schema
-              oneOfTypes.push(`I_${refName}`);
+              // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+              const correctInterfaceName =
+                interfaceNameLookup?.get(refName) || `I_${refName}`;
+              oneOfTypes.push(correctInterfaceName);
             } else {
-              oneOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+              oneOfTypes.push(
+                getPropertyType(resolvedSchema, allSchemas, interfaceNameLookup)
+              );
             }
           }
         }
       } else {
-        oneOfTypes.push(getPropertyType(oneOfSchema, allSchemas));
+        oneOfTypes.push(
+          getPropertyType(oneOfSchema, allSchemas, interfaceNameLookup)
+        );
       }
     });
 
@@ -99,20 +93,29 @@ export function getPropertyType(
         const resolvedSchema = allSchemas[refName];
         if (resolvedSchema) {
           if ("$ref" in resolvedSchema) {
-            anyOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+            anyOfTypes.push(
+              getPropertyType(resolvedSchema, allSchemas, interfaceNameLookup)
+            );
           } else {
             const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
             if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
               anyOfTypes.push(`Enums.E_${refName}`);
             } else if (schemaObj.type === "object" || schemaObj.properties) {
-              anyOfTypes.push(`I_${refName}`);
+              // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+              const correctInterfaceName =
+                interfaceNameLookup?.get(refName) || `I_${refName}`;
+              anyOfTypes.push(correctInterfaceName);
             } else {
-              anyOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+              anyOfTypes.push(
+                getPropertyType(resolvedSchema, allSchemas, interfaceNameLookup)
+              );
             }
           }
         }
       } else {
-        anyOfTypes.push(getPropertyType(anyOfSchema, allSchemas));
+        anyOfTypes.push(
+          getPropertyType(anyOfSchema, allSchemas, interfaceNameLookup)
+        );
       }
     });
 
@@ -151,14 +154,23 @@ export function getPropertyType(
           ) {
             return `Enums.E_${refName}[]`;
           } else {
-            // This is an interface reference
-            return `I_${refName}[]`;
+            // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+            const correctInterfaceName =
+              interfaceNameLookup?.get(refName) || `I_${refName}`;
+            return `${correctInterfaceName}[]`;
           }
         }
-        return `I_${refName}[]`;
+        // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+        const correctInterfaceName =
+          interfaceNameLookup?.get(refName) || `I_${refName}`;
+        return `${correctInterfaceName}[]`;
       }
       // Handle other item types
-      const itemType = getPropertyType(schema.items, allSchemas);
+      const itemType = getPropertyType(
+        schema.items,
+        allSchemas,
+        interfaceNameLookup
+      );
       return `${itemType}[]`;
     }
     return "unknown[]";
@@ -224,7 +236,8 @@ export function handleInheritance(
     string,
     OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject
   >,
-  inheritanceType: "allOf" | "oneOf" | "anyOf"
+  inheritanceType: "allOf" | "oneOf" | "anyOf",
+  interfaceNameLookup?: Map<string, string>
 ): string {
   const inheritanceSchemas = schema[inheritanceType] || [];
 
@@ -245,15 +258,25 @@ export function handleInheritance(
           if (isEnum) {
             extendsList.push(`Enums.E_${refName}`);
           } else {
-            extendsList.push(`I_${refName}`);
+            // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+            const correctInterfaceName =
+              interfaceNameLookup?.get(refName) || `I_${refName}`;
+            extendsList.push(correctInterfaceName);
           }
         } else {
-          extendsList.push(`I_${refName}`);
+          // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+          const correctInterfaceName =
+            interfaceNameLookup?.get(refName) || `I_${refName}`;
+          extendsList.push(correctInterfaceName);
         }
       } else if (inheritedSchema.properties) {
         Object.entries(inheritedSchema.properties).forEach(
           ([propName, propSchema]) => {
-            const propType = getPropertyType(propSchema, allSchemas);
+            const propType = getPropertyType(
+              propSchema,
+              allSchemas,
+              interfaceNameLookup
+            );
             const isRequired =
               inheritedSchema.required?.includes(propName) || false;
             const optionalMarker = isRequired ? "" : "?";
@@ -282,13 +305,23 @@ export function handleInheritance(
             if (isEnum) {
               properties.push(`  ${propName}: Enums.E_${refName};`);
             } else {
-              properties.push(`  ${propName}: I_${refName};`);
+              // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+              const correctInterfaceName =
+                interfaceNameLookup?.get(refName) || `I_${refName}`;
+              properties.push(`  ${propName}: ${correctInterfaceName};`);
             }
           } else {
-            properties.push(`  ${propName}: I_${refName};`);
+            // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+            const correctInterfaceName =
+              interfaceNameLookup?.get(refName) || `I_${refName}`;
+            properties.push(`  ${propName}: ${correctInterfaceName};`);
           }
         } else {
-          const propType = getPropertyType(propSchema, allSchemas);
+          const propType = getPropertyType(
+            propSchema,
+            allSchemas,
+            interfaceNameLookup
+          );
           const isRequired = schema.required?.includes(propName) || false;
           const optionalMarker = isRequired ? "" : "?";
           properties.push(`  ${propName}${optionalMarker}: ${propType};`);
@@ -314,14 +347,21 @@ export function handleInheritance(
         if (isEnum) {
           unionTypes.push(`Enums.E_${refName}`);
         } else {
-          unionTypes.push(`I_${refName}`);
+          // Use the lookup table to get the correct interface name, or fallback to I_ if not found
+          const correctInterfaceName =
+            interfaceNameLookup?.get(refName) || `I_${refName}`;
+          unionTypes.push(correctInterfaceName);
         }
       } else {
-        const inlineInterfaceName = `${interfaceName}Inline${unionTypes.length}`;
-        unionTypes.push(inlineInterfaceName);
+        const propType = getPropertyType(
+          inheritedSchema,
+          allSchemas,
+          interfaceNameLookup
+        );
+        unionTypes.push(propType);
       }
     });
 
-    return `export type ${interfaceName} = ${unionTypes.join(" | ")};`;
+    return unionTypes.join(" | ");
   }
 }
