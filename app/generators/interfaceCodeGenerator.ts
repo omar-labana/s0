@@ -93,6 +93,11 @@ export function determineInterfaceName(
   usage: SchemaUsage,
   schema?: OpenAPIV3.SchemaObject
 ): string {
+  // Special case: Base interfaces should always be prefixed with I_
+  if (isBaseInterface(schemaName, schema)) {
+    return `I_${schemaName}`;
+  }
+
   // If we have schema usage information, use it as the primary indicator
   if (usage.isRequest) {
     return `P_${schemaName}`; // Payload
@@ -113,6 +118,52 @@ export function determineInterfaceName(
   // Fallback: analyze the schema name for common patterns
   const fallbackType = analyzeSchemaName(schemaName);
   return `${fallbackType}_${schemaName}`;
+}
+
+/**
+ * Determines if a schema is a base interface that should always be prefixed with I_
+ */
+function isBaseInterface(
+  schemaName: string,
+  schema?: OpenAPIV3.SchemaObject
+): boolean {
+  // Check if the name suggests it's a base class
+  if (
+    schemaName.includes("Base") ||
+    schemaName.includes("Entity") ||
+    schemaName.includes("Audited") ||
+    schemaName.includes("Creation") ||
+    schemaName.includes("Modification")
+  ) {
+    return true;
+  }
+
+  // Check if the schema structure suggests it's a base class
+  if (schema) {
+    // Abstract classes
+    if ((schema as any)["x-abstract"] === true) {
+      return true;
+    }
+
+    // Schemas that only have allOf with $ref (base entity pattern)
+    if (schema.allOf && schema.allOf.length > 0) {
+      const hasOnlyRefAndMinimalProperties =
+        schema.allOf.some((item: any) => item.$ref) &&
+        (!schema.properties || Object.keys(schema.properties).length === 0);
+      if (hasOnlyRefAndMinimalProperties) {
+        return true;
+      }
+    }
+
+    // Empty schemas that are likely base classes
+    if (!schema.properties || Object.keys(schema.properties).length === 0) {
+      if (schema.allOf || schema.oneOf || schema.anyOf) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**
