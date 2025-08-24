@@ -1,10 +1,10 @@
-import { defineCommand, runMain } from "citty";
-import consola from "consola";
-import { $fetch } from "ofetch";
+import { defineCommand, runMain } from "npm:citty@0.1.6";
+import consola from "npm:consola@3.4.2";
+import { $fetch } from "npm:ofetch@1.4.1";
 import { generateEnum } from "./app/generateEnums.ts";
 import { generateInterfaces } from "./app/generateInterfaces.ts";
 import { generateRepositories } from "./app/generators/repositoryOrchestrator.ts";
-import type { OpenAPIV3 } from "openapi-types";
+import type { OpenAPIV3 } from "npm:openapi-types@12.1.3";
 
 const main = defineCommand({
   meta: {

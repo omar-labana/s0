@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from "openapi-types";
+import type { OpenAPIV3 } from "npm:openapi-types@12.1.3";
 import { getPropertyType, handleInheritance } from "./typeResolver.ts";
 import type { SchemaUsage } from "./schemaAnalyzer.ts";
 

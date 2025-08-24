@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from "openapi-types";
+import type { OpenAPIV3 } from "npm:openapi-types@12.1.3";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import process from "node:process";

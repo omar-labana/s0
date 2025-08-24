@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from "openapi-types";
+import type { OpenAPIV3 } from "npm:openapi-types@12.1.3";
 
 // Type for schemas with custom properties
 export type SchemaWithCustomProps = OpenAPIV3.SchemaObject & {
