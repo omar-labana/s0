@@ -145,7 +145,7 @@ export function generateHeaderComment(
 // 3. Default to I_ for schemas not used in API paths
 
 // Import all generated enums
-import * as Enums from '../../generated/enums.ts';
+import * as Enums from './enums.ts';
 
 `;
 }
