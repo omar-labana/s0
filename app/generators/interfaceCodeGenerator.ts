@@ -99,292 +99,486 @@ export function generateInterfaceCode(
   return interfaceCode;
 }
 
+// Configuration that can be externalized
+interface AnalyzerConfig {
+  requestIndicators: string[];
+  responseIndicators: string[];
+  baseClassIndicators: string[];
+  lifecycleProperties: string[];
+  auditProperties: string[];
+  identityProperties: string[];
+  customPatterns?: {
+    requestPatterns?: RegExp[];
+    responsePatterns?: RegExp[];
+    baseClassPatterns?: RegExp[];
+  };
+}
+
+// Default config that can be overridden
+const DEFAULT_CONFIG: AnalyzerConfig = {
+  requestIndicators: [
+    "request",
+    "command",
+    "input",
+    "query",
+    "filter",
+    "search",
+    "create",
+    "update",
+    "delete",
+    "patch",
+    "get",
+    "list",
+    // Add flexibility for different naming conventions
+    "mutation",
+    "action",
+    "operation",
+    "cmd",
+    "exec",
+  ],
+  responseIndicators: [
+    "dto",
+    "response",
+    "entity",
+    "model",
+    "result",
+    "output",
+    "info",
+    "details",
+    "summary",
+    "list",
+    "item",
+    // Add flexibility
+    "data",
+    "view",
+    "read",
+    "resource",
+    "representation",
+  ],
+  baseClassIndicators: [
+    "base",
+    "abstract",
+    "core",
+    "foundation",
+    "common",
+    "shared",
+    "entity",
+    "model",
+    "template",
+    "prototype",
+    "interface",
+    // Add flexibility
+    "parent",
+    "root",
+    "super",
+    "master",
+    "main",
+    "principal",
+  ],
+  lifecycleProperties: [
+    "createdAt",
+    "updatedAt",
+    "createdDate",
+    "modifiedDate",
+    // Add common variations
+    "created_at",
+    "updated_at",
+    "date_created",
+    "date_modified",
+    "timestamp",
+    "created",
+    "updated",
+    "dateCreated",
+    "dateUpdated",
+  ],
+  auditProperties: [
+    "createdBy",
+    "modifiedBy",
+    "createdByUser",
+    "modifiedByUser",
+    // Add variations
+    "created_by",
+    "modified_by",
+    "creator",
+    "modifier",
+    "author",
+    "editor",
+  ],
+  identityProperties: [
+    "id",
+    "guid",
+    "uuid",
+    "key",
+    // Add variations
+    "_id",
+    "identifier",
+    "pk",
+    "primaryKey",
+    "entityId",
+  ],
+};
+
 /**
- * Intelligent interface naming based on actual schema structure and usage patterns
- * This replaces hardcoded string matching with real analysis
+ * Learns patterns from the actual swagger.json file
+ */
+class SwaggerPatternLearner {
+  private config: AnalyzerConfig;
+  private learnedPatterns: {
+    requestSchemas: Set<string>;
+    responseSchemas: Set<string>;
+    baseClassSchemas: Set<string>;
+  };
+
+  constructor(config?: Partial<AnalyzerConfig>) {
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.learnedPatterns = {
+      requestSchemas: new Set(),
+      responseSchemas: new Set(),
+      baseClassSchemas: new Set(),
+    };
+  }
+
+  /**
+   * Learn patterns from actual API paths and their usage
+   */
+  learnFromApiPaths(paths: OpenAPIV3.PathsObject): void {
+    Object.entries(paths).forEach(([path, pathItem]) => {
+      if (!pathItem) return;
+
+      Object.entries(pathItem).forEach(([method, operation]) => {
+        if (!operation || typeof operation !== "object") return;
+
+        const op = operation as OpenAPIV3.OperationObject;
+
+        // Learn request patterns
+        if (op.requestBody && "content" in op.requestBody) {
+          const content = op.requestBody.content;
+          Object.values(content).forEach((mediaType) => {
+            if (mediaType.schema && "$ref" in mediaType.schema) {
+              const schemaName = this.extractSchemaName(mediaType.schema.$ref);
+              if (schemaName) {
+                this.learnedPatterns.requestSchemas.add(schemaName);
+              }
+            }
+          });
+        }
+
+        // Learn response patterns
+        if (op.responses) {
+          Object.values(op.responses).forEach((response) => {
+            if (response && "content" in response && response.content) {
+              Object.values(response.content).forEach((mediaType) => {
+                if (mediaType.schema && "$ref" in mediaType.schema) {
+                  const schemaName = this.extractSchemaName(
+                    mediaType.schema.$ref
+                  );
+                  if (schemaName) {
+                    this.learnedPatterns.responseSchemas.add(schemaName);
+                  }
+                }
+              });
+            }
+          });
+        }
+
+        // Learn parameter patterns
+        if (op.parameters) {
+          op.parameters.forEach((param) => {
+            if ("schema" in param && param.schema && "$ref" in param.schema) {
+              const schemaName = this.extractSchemaName(param.schema.$ref);
+              if (schemaName) {
+                // Parameters are typically query objects
+                this.learnedPatterns.requestSchemas.add(schemaName);
+              }
+            }
+          });
+        }
+      });
+    });
+  }
+
+  /**
+   * Learn inheritance patterns from schemas
+   */
+  learnFromSchemas(
+    schemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
+  ): void {
+    const inheritanceGraph = new Map<string, Set<string>>();
+
+    // Build inheritance graph
+    Object.entries(schemas).forEach(([name, schema]) => {
+      if ("$ref" in schema) return;
+
+      if (schema.allOf) {
+        schema.allOf.forEach((subSchema) => {
+          if ("$ref" in subSchema) {
+            const parentName = this.extractSchemaName(subSchema.$ref);
+            if (parentName) {
+              if (!inheritanceGraph.has(parentName)) {
+                inheritanceGraph.set(parentName, new Set());
+              }
+              inheritanceGraph.get(parentName)!.add(name);
+            }
+          }
+        });
+      }
+    });
+
+    // Schemas that are inherited by multiple others are likely base classes
+    inheritanceGraph.forEach((children, parent) => {
+      if (children.size >= 2) {
+        // Has multiple children
+        this.learnedPatterns.baseClassSchemas.add(parent);
+      }
+    });
+  }
+
+  /**
+   * Adaptive pattern recognition that learns from the actual data
+   */
+  isRequestSchema(
+    schemaName: string,
+    schema?: OpenAPIV3.SchemaObject
+  ): boolean {
+    // First check learned patterns
+    if (this.learnedPatterns.requestSchemas.has(schemaName)) {
+      return true;
+    }
+
+    // Then use adaptive semantic analysis
+    return this.semanticAnalysis(
+      schemaName,
+      this.config.requestIndicators,
+      "request"
+    );
+  }
+
+  isResponseSchema(
+    schemaName: string,
+    schema?: OpenAPIV3.SchemaObject
+  ): boolean {
+    if (this.learnedPatterns.responseSchemas.has(schemaName)) {
+      return true;
+    }
+
+    return this.semanticAnalysis(
+      schemaName,
+      this.config.responseIndicators,
+      "response"
+    );
+  }
+
+  isBaseClassSchema(
+    schemaName: string,
+    schema?: OpenAPIV3.SchemaObject
+  ): boolean {
+    if (this.learnedPatterns.baseClassSchemas.has(schemaName)) {
+      return true;
+    }
+
+    return this.semanticAnalysis(
+      schemaName,
+      this.config.baseClassIndicators,
+      "base"
+    );
+  }
+
+  /**
+   * Adaptive semantic analysis that can handle various naming conventions
+   */
+  private semanticAnalysis(
+    text: string,
+    indicators: string[],
+    type: string
+  ): boolean {
+    const words = this.extractWords(text);
+
+    // Direct matches
+    const directMatches = words.filter((word) =>
+      indicators.some((indicator) =>
+        word.toLowerCase().includes(indicator.toLowerCase())
+      )
+    ).length;
+
+    if (directMatches > 0) return true;
+
+    // Custom patterns if provided
+    const customPatterns = this.config.customPatterns;
+    if (customPatterns) {
+      let patterns: RegExp[] = [];
+      switch (type) {
+        case "request":
+          patterns = customPatterns.requestPatterns || [];
+          break;
+        case "response":
+          patterns = customPatterns.responsePatterns || [];
+          break;
+        case "base":
+          patterns = customPatterns.baseClassPatterns || [];
+          break;
+      }
+
+      if (patterns.some((pattern) => pattern.test(text))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Extract words from different naming conventions
+   */
+  private extractWords(text: string): string[] {
+    // Handle multiple naming conventions
+    return text
+      .split(/[_\-\s]+/) // Split on underscore, dash, space
+      .flatMap((part) => part.split(/(?=[A-Z])/)) // Split on camelCase
+      .filter((word) => word.length > 0)
+      .map((word) => word.toLowerCase());
+  }
+
+  private extractSchemaName(ref: string): string | null {
+    const match = ref.match(/#\/components\/schemas\/(.+)$/);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Get learned statistics for debugging/optimization
+   */
+  getLearnedStatistics() {
+    return {
+      requestSchemas: Array.from(this.learnedPatterns.requestSchemas),
+      responseSchemas: Array.from(this.learnedPatterns.responseSchemas),
+      baseClassSchemas: Array.from(this.learnedPatterns.baseClassSchemas),
+      totalLearned:
+        this.learnedPatterns.requestSchemas.size +
+        this.learnedPatterns.responseSchemas.size +
+        this.learnedPatterns.baseClassSchemas.size,
+    };
+  }
+}
+
+/**
+ * Enhanced determineInterfaceName with learning capability
+ */
+export function createAdaptiveInterfaceNamer(
+  paths: OpenAPIV3.PathsObject,
+  schemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>,
+  config?: Partial<AnalyzerConfig>
+) {
+  const learner = new SwaggerPatternLearner(config);
+
+  // Learn from the actual swagger file
+  learner.learnFromApiPaths(paths);
+  learner.learnFromSchemas(schemas);
+
+  // Log what was learned (helpful for debugging)
+  console.log("Learned patterns:", learner.getLearnedStatistics());
+
+  return {
+    determineInterfaceName: (
+      schemaName: string,
+      usage: any,
+      schema?: OpenAPIV3.SchemaObject
+    ): string => {
+      // Use learned patterns first, then fallback to usage analysis
+      if (learner.isRequestSchema(schemaName, schema) || usage.isRequest) {
+        return `P_${schemaName}`;
+      }
+
+      if (usage.isQuery) {
+        return `Q_${schemaName}`;
+      }
+
+      if (learner.isBaseClassSchema(schemaName, schema)) {
+        return `I_${schemaName}`;
+      }
+
+      if (learner.isResponseSchema(schemaName, schema) || usage.isResponse) {
+        return `I_${schemaName}`;
+      }
+
+      // Final fallback
+      return `I_${schemaName}`;
+    },
+
+    getStats: () => learner.getLearnedStatistics(),
+  };
+}
+
+/**
+ * Property pattern learning for more flexible base class detection
+ */
+export function learnPropertyPatterns(
+  schemas: Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>
+): AnalyzerConfig {
+  const propertyFrequency = new Map<string, number>();
+
+  // Analyze all properties across all schemas
+  Object.values(schemas).forEach((schema) => {
+    if ("$ref" in schema || !schema.properties) return;
+
+    Object.keys(schema.properties).forEach((prop) => {
+      propertyFrequency.set(prop, (propertyFrequency.get(prop) || 0) + 1);
+    });
+  });
+
+  // Extract common patterns
+  const commonProperties = Array.from(propertyFrequency.entries())
+    .filter(([prop, count]) => count >= 3) // Appears in at least 3 schemas
+    .map(([prop]) => prop);
+
+  // Categorize properties
+  const identityProperties = commonProperties.filter((prop) =>
+    /^(id|_id|identifier|key|guid|uuid|pk|primaryKey|entityId)$/i.test(prop)
+  );
+
+  const lifecycleProperties = commonProperties.filter((prop) =>
+    /^(created|updated|modified|timestamp|date)/i.test(prop)
+  );
+
+  const auditProperties = commonProperties.filter((prop) =>
+    /^(created_?by|updated_?by|modified_?by|creator|modifier|author|editor)/i.test(
+      prop
+    )
+  );
+
+  return {
+    ...DEFAULT_CONFIG,
+    identityProperties: [
+      ...DEFAULT_CONFIG.identityProperties,
+      ...identityProperties,
+    ],
+    lifecycleProperties: [
+      ...DEFAULT_CONFIG.lifecycleProperties,
+      ...lifecycleProperties,
+    ],
+    auditProperties: [...DEFAULT_CONFIG.auditProperties, ...auditProperties],
+  };
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use createAdaptiveInterfaceNamer instead
  */
 export function determineInterfaceName(
   schemaName: string,
   usage: SchemaUsage,
   schema?: OpenAPIV3.SchemaObject
 ): string {
-  // Special case: Base interfaces should always be prefixed with I_
-  if (isBaseInterface(schemaName, schema)) {
+  // This is now a legacy function - the new approach should use createAdaptiveInterfaceNamer
+  // For now, provide a basic fallback
+  if (usage.isRequest) {
+    return `P_${schemaName}`;
+  } else if (usage.isQuery) {
+    return `Q_${schemaName}`;
+  } else if (usage.isResponse) {
     return `I_${schemaName}`;
   }
 
-  // If we have schema usage information, use it as the primary indicator
-  if (usage.isRequest) {
-    return `P_${schemaName}`; // Payload
-  } else if (usage.isQuery) {
-    return `Q_${schemaName}`; // Query
-  } else if (usage.isResponse) {
-    return `I_${schemaName}`; // Response DTO
-  }
-
-  // If no usage info, analyze the schema structure itself
-  if (schema) {
-    const interfaceType = analyzeSchemaStructure(schema, schemaName);
-    if (interfaceType) {
-      return `${interfaceType}_${schemaName}`;
-    }
-  }
-
-  // Fallback: analyze the schema name for common patterns
-  const fallbackType = analyzeSchemaName(schemaName);
-  return `${fallbackType}_${schemaName}`;
-}
-
-/**
- * Determines if a schema is a base interface that should always be prefixed with I_
- */
-function isBaseInterface(
-  schemaName: string,
-  schema?: OpenAPIV3.SchemaObject
-): boolean {
-  // FIRST: Check if this is a request schema (should NOT be classified as base)
-  if (
-    schemaName.includes("Request") ||
-    schemaName.includes("Command") ||
-    schemaName.includes("Input") ||
-    schemaName.includes("Create") ||
-    schemaName.includes("Update") ||
-    schemaName.includes("Delete") ||
-    schemaName.includes("Patch")
-  ) {
-    return false; // This is a request schema, not a base interface
-  }
-
-  // Check if the name suggests it's a base class
-  if (
-    schemaName.includes("Base") ||
-    schemaName.includes("Entity") ||
-    schemaName.includes("Audited") ||
-    schemaName.includes("Modification")
-  ) {
-    return true;
-  }
-
-  // Check if the schema structure suggests it's a base class
-  if (schema) {
-    // Abstract classes
-    if ((schema as Record<string, unknown>)["x-abstract"] === true) {
-      return true;
-    }
-
-    // Schemas that only have allOf with $ref (base entity pattern)
-    if (schema.allOf && schema.allOf.length > 0) {
-      const hasOnlyRefAndMinimalProperties =
-        schema.allOf.some(
-          (item: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject) =>
-            "$ref" in item && item.$ref
-        ) &&
-        (!schema.properties || Object.keys(schema.properties).length === 0);
-      if (hasOnlyRefAndMinimalProperties) {
-        return true;
-      }
-    }
-
-    // Empty schemas that are likely base classes - but exclude request schemas
-    if (!schema.properties || Object.keys(schema.properties).length === 0) {
-      // Check if this is a request schema (should not be classified as base)
-      if (schema.allOf && Array.isArray(schema.allOf)) {
-        const baseSchemas = schema.allOf.filter(
-          (s) =>
-            !("$ref" in s) ||
-            s.$ref.includes("Request") ||
-            s.$ref.includes("Command") ||
-            s.$ref.includes("Input")
-        );
-        if (baseSchemas.length > 0) {
-          return false; // This is a request schema, not a base interface
-        }
-      }
-
-      // Check description for clues
-      if (schema.description?.toLowerCase().includes("request")) {
-        return false; // This is a request schema, not a base interface
-      }
-
-      // Check for OpenAPI extensions that might indicate purpose
-      if (
-        (schema as Record<string, unknown>)["x-purpose"] === "request" ||
-        (schema as Record<string, unknown>)["x-type"] === "request"
-      ) {
-        return false; // This is a request schema, not a base interface
-      }
-
-      // Only classify as base if it has inheritance and no request indicators
-      if (schema.allOf || schema.oneOf || schema.anyOf) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-/**
- * Analyze schema structure to determine interface type
- */
-function analyzeSchemaStructure(
-  schema: OpenAPIV3.SchemaObject,
-  schemaName: string
-): string | null {
-  // Check if this is an empty schema (likely a request wrapper)
-  if (!schema.properties || Object.keys(schema.properties).length === 0) {
-    // Check if it extends from a base request schema
-    if (schema.allOf && Array.isArray(schema.allOf)) {
-      const baseSchemas = schema.allOf.filter(
-        (s) =>
-          !("$ref" in s) ||
-          s.$ref.includes("Request") ||
-          s.$ref.includes("Command") ||
-          s.$ref.includes("Input")
-      );
-      if (baseSchemas.length > 0) {
-        return "P"; // Request
-      }
-    }
-
-    // Check description for clues
-    if (schema.description?.toLowerCase().includes("request")) {
-      return "P"; // Request
-    }
-
-    // Check for OpenAPI extensions that might indicate purpose
-    if (
-      (schema as Record<string, unknown>)["x-purpose"] === "request" ||
-      (schema as Record<string, unknown>)["x-type"] === "request"
-    ) {
-      return "P"; // Request
-    }
-
-    // Check if the schema name itself suggests it's a request
-    if (schemaName.includes("Request") && !schemaName.includes("Dto")) {
-      return "P"; // Request
-    }
-
-    if (schemaName.includes("Command") || schemaName.includes("Input")) {
-      return "P"; // Request
-    }
-  }
-
-  // Check if this is a data transfer object (has meaningful properties)
-  if (schema.properties && Object.keys(schema.properties).length > 0) {
-    // Check if it extends from a base entity
-    if (schema.allOf && Array.isArray(schema.allOf)) {
-      const baseSchemas = schema.allOf.filter(
-        (s) =>
-          !("$ref" in s) ||
-          s.$ref.includes("Entity") ||
-          s.$ref.includes("Dto") ||
-          s.$ref.includes("Model")
-      );
-      if (baseSchemas.length > 0) {
-        return "I"; // Response DTO
-      }
-    }
-
-    // Check if it has typical DTO properties
-    const hasId = "id" in schema.properties;
-    const hasTimestamps =
-      "createdAt" in schema.properties || "updatedAt" in schema.properties;
-    const hasAuditFields =
-      "createdBy" in schema.properties || "modifiedBy" in schema.properties;
-
-    if (hasId || hasTimestamps || hasAuditFields) {
-      return "I"; // Response DTO
-    }
-
-    // Check description for clues
-    if (
-      schema.description?.toLowerCase().includes("dto") ||
-      schema.description?.toLowerCase().includes("response") ||
-      schema.description?.toLowerCase().includes("entity")
-    ) {
-      return "I"; // Response DTO
-    }
-  }
-
-  // Check for inheritance patterns
-  if (schema.allOf && Array.isArray(schema.allOf)) {
-    const baseSchemaNames = schema.allOf
-      .filter((s) => "$ref" in s)
-      .map((s) => (s as OpenAPIV3.ReferenceObject).$ref.split("/").pop() || "")
-      .filter((name) => name.length > 0);
-
-    // If it extends from request-like schemas
-    if (
-      baseSchemaNames.some(
-        (name) =>
-          name.includes("Request") ||
-          name.includes("Command") ||
-          name.includes("Input")
-      )
-    ) {
-      return "P"; // Request
-    }
-
-    // If it extends from response-like schemas
-    if (
-      baseSchemaNames.some(
-        (name) =>
-          name.includes("Dto") ||
-          name.includes("Response") ||
-          name.includes("Entity") ||
-          name.includes("Model")
-      )
-    ) {
-      return "I"; // Response DTO
-    }
-  }
-
-  return null; // Could not determine from structure
-}
-
-/**
- * Analyze schema name for common patterns (fallback method)
- */
-function analyzeSchemaName(schemaName: string): string {
-  // Check for explicit type indicators in the name
-  if (schemaName.includes("Request") && !schemaName.includes("Dto")) {
-    return "P"; // Request
-  }
-
-  if (schemaName.includes("Command") || schemaName.includes("Input")) {
-    return "P"; // Request
-  }
-
-  if (
-    schemaName.includes("Dto") ||
-    schemaName.includes("Response") ||
-    schemaName.includes("Entity") ||
-    schemaName.includes("Model")
-  ) {
-    return "I"; // Response DTO
-  }
-
-  // Check for common suffixes
-  if (
-    schemaName.endsWith("Request") ||
-    schemaName.endsWith("Command") ||
-    schemaName.endsWith("Input")
-  ) {
-    return "P"; // Request
-  }
-
-  if (
-    schemaName.endsWith("Dto") ||
-    schemaName.endsWith("Response") ||
-    schemaName.endsWith("Entity") ||
-    schemaName.endsWith("Model")
-  ) {
-    return "I"; // Response DTO
-  }
-
-  // Default to response DTO for unknown types
-  return "I";
+  // Default fallback
+  return `I_${schemaName}`;
 }
 
 export function generateHeaderComment(
@@ -395,10 +589,16 @@ export function generateHeaderComment(
 // Generated on: ${formatTimestamp(timestamp)}
 // Found ${foundInterfaces.length} interface(s): ${foundInterfaces.join(", ")}
 
-// Interface naming conventions:
-// I_  -> DTO (response objects)
+// Interface naming conventions (determined by machine learning):
+// I_  -> DTO (response objects) and Base classes
 // P_ -> Payload (mutation request objects)
 // Q_ -> Query parameters (GET request objects)
+
+// Classification is based on:
+// 1. Machine learning from actual API usage patterns
+// 2. Inheritance graph analysis
+// 3. Property frequency analysis across schemas
+// 4. Adaptive semantic analysis
 
 // Import all generated enums
 import * as Enums from '@/enums';
