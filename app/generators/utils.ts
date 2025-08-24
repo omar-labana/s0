@@ -35,7 +35,11 @@ export function parseParameters(parameters: unknown[]): ParameterInfo[] {
 export function getParameterType(param: ParameterInfo): string {
   // Check schema first, then fall back to type
   if (param.schema?.type) {
-    return mapSwaggerTypeToTypeScript(param.schema.type, param.schema.format);
+    return mapSwaggerTypeToTypeScript(
+      param.schema.type,
+      param.schema.format,
+      param.schema.items
+    );
   }
 
   if (param.type) {
@@ -47,7 +51,8 @@ export function getParameterType(param: ParameterInfo): string {
 
 export function mapSwaggerTypeToTypeScript(
   swaggerType: string,
-  format?: string
+  format?: string,
+  items?: { type?: string; format?: string }
 ): string {
   switch (swaggerType) {
     case "string":
@@ -62,6 +67,10 @@ export function mapSwaggerTypeToTypeScript(
     case "boolean":
       return "boolean";
     case "array":
+      if (items?.type) {
+        const itemType = mapSwaggerTypeToTypeScript(items.type, items.format);
+        return `${itemType}[]`;
+      }
       return "unknown[]";
     case "object":
       return "Record<string, unknown>";

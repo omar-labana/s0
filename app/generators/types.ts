@@ -12,6 +12,7 @@ export interface ParameterInfo {
     format?: string;
     items?: {
       type?: string;
+      format?: string;
     };
   };
 }
