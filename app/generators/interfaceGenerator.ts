@@ -1,4 +1,4 @@
-import { pascalCase } from "npm:scule";
+import { pascalCase } from "scule";
 import { EndpointInfo } from "./types.ts";
 import { CONFIG } from "./config.ts";
 import { getParameterType } from "./utils.ts";

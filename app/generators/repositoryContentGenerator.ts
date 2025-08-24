@@ -1,4 +1,4 @@
-import { pascalCase } from "npm:scule";
+import { pascalCase } from "scule";
 import { RepositoryFile, EndpointInfo } from "./types.ts";
 import { formatTimestamp } from "./utils.ts";
 import { generateQueryInterfaces } from "./interfaceGenerator.ts";
@@ -23,7 +23,7 @@ export function generateRepositoryContent(repository: RepositoryFile): string {
 // Generated on: ${formatTimestamp(new Date())}
 // Found ${endpoints.length} endpoint(s)
 
-import { $Fetch } from "npm:ofetch";
+import { $Fetch } from "ofetch";
 import * as Interfaces from "@/interfaces";
 import * as Enums from "@/enums";
 

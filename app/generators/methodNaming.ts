@@ -1,4 +1,4 @@
-import { camelCase, pascalCase } from "npm:scule";
+import { camelCase, pascalCase } from "scule";
 import { EndpointInfo } from "./types.ts";
 import { CONFIG } from "./config.ts";
 
