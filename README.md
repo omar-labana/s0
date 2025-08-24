@@ -1,4 +1,4 @@
-# Swagger Generator CLI
+# Elegant Swagger CodeGen
 
 A powerful CLI tool to generate TypeScript types and repository classes from OpenAPI/Swagger specifications. Built with Deno and TypeScript.
 
@@ -24,38 +24,61 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 irm https://deno.land/x/install/install.ps1 | iex
 ```
 
+### Install Elegant Swagger CodeGen
+
+```bash
+# Global installation (recommended)
+deno install --global --allow-net --allow-read --allow-write --name elegant-swagger jsr:@devex/elegant-swagger-codegen
+```
+
+### Run Without Installing
+
+```bash
+# Run directly without installation
+deno run --allow-net --allow-read --allow-write jsr:@devex/elegant-swagger-codegen generate ./swagger.json
+```
+
 ## Usage
 
-### Basic Commands
+### After Global Installation
 
 ```bash
 # Generate everything from a local swagger.json file
-deno run --allow-env --allow-read --allow-net --allow-write main.ts generate ./swagger.json
+elegant-swagger generate ./swagger.json
 
 # Generate from a remote URL
-deno run --allow-env --allow-read --allow-net --allow-write main.ts generate https://api.example.com/swagger.json
+elegant-swagger generate https://api.example.com/swagger.json
+
+# Generate with custom output directory
+elegant-swagger generate ./swagger.json --output ./src/api
+
+# Generate only types
+elegant-swagger generate ./swagger.json --types
+
+# Generate only repositories
+elegant-swagger generate ./swagger.json --repositories
 
 # Validate a swagger file
-deno run --allow-env --allow-read --allow-net main.ts validate ./swagger.json
+elegant-swagger validate ./swagger.json
 
 # Get information about a swagger file
-deno run --allow-env --allow-read --allow-net main.ts info ./swagger.json
+elegant-swagger info ./swagger.json
 ```
 
-### Using Deno Tasks (Recommended)
+### Direct Execution (Without Installation)
 
 ```bash
 # Generate everything
-deno task generate ./swagger.json
+deno run --allow-net --allow-read --allow-write jsr:@devex/elegant-swagger-codegen generate ./swagger.json
 
 # Generate from URL
-deno task generate https://api.example.com/swagger.json
+deno run --allow-net --allow-read --allow-write jsr:@devex/elegant-swagger-codegen generate https://api.example.com/swagger.json
 
 # Validate
-deno task validate ./swagger.json
+deno run --allow-net --allow-read --allow-write jsr:@devex/elegant-swagger-codegen validate ./swagger.json
 
 # Get info
-deno task info ./swagger.json
+deno run --allow-net --allow-read --allow-write jsr:@devex/elegant-swagger-codegen info ./swagger.json
 ```
 
 ### Command Options
@@ -63,11 +86,14 @@ deno task info ./swagger.json
 #### Generate Command
 
 ```bash
-deno task generate [source] [options]
+elegant-swagger generate [source] [options]
+
+Arguments:
+  source                 Path to swagger.json file or URL
 
 Options:
   -o, --output <dir>     Output directory (default: ./generated)
-  -t, --types           Generate only TypeScript types
+  -t, --types           Generate only TypeScript types (enums and interfaces)
   -r, --repositories    Generate only repository classes
   -f, --force          Force overwrite existing files
   -v, --verbose        Enable verbose logging
@@ -76,17 +102,21 @@ Options:
 #### Examples
 
 ```bash
-# Generate only types
-deno task generate ./swagger.json --types
+# Generate everything with default settings
+elegant-swagger generate ./swagger.json
 
-# Generate only repositories
-deno task generate ./swagger.json --repositories
+# Generate only types with custom output
+elegant-swagger generate ./swagger.json --types --output ./src/types
 
-# Generate with custom output directory
-deno task generate ./swagger.json --output ./src/types
+# Generate only repositories with verbose logging
+elegant-swagger generate ./swagger.json --repositories --verbose
 
-# Generate with verbose logging
-deno task generate ./swagger.json --verbose
+# Generate from URL and force overwrite
+elegant-swagger generate https://api.example.com/swagger.json --force --output ./api-client
+
+# Validate before generating
+elegant-swagger validate ./swagger.json
+elegant-swagger generate ./swagger.json
 ```
 
 ## What Gets Generated
@@ -98,6 +128,14 @@ deno task generate ./swagger.json --verbose
 - Handles both string and numeric enums
 - Supports custom enum names via `x-enumNames` extension
 
+```typescript
+export enum E_UserStatus {
+  active = "active",
+  inactive = "inactive",
+  pending = "pending",
+}
+```
+
 ### 2. Interfaces (`generated/interfaces.ts`)
 
 - Generates TypeScript interfaces for all schemas
@@ -107,6 +145,22 @@ deno task generate ./swagger.json --verbose
   - `Q_` prefix for query parameter objects
 - Handles inheritance (`allOf`, `oneOf`, `anyOf`)
 - Supports nested object references
+
+```typescript
+export interface I_User {
+  id?: number;
+  name?: string;
+  email?: string;
+  status?: E_UserStatus;
+  createdAt?: string;
+}
+
+export interface P_CreateUser {
+  name: string;
+  email: string;
+  status?: E_UserStatus;
+}
+```
 
 ### 3. Repositories (`generated/repositories/`)
 
@@ -119,6 +173,33 @@ deno task generate ./swagger.json --verbose
   - Response types
 - Uses proper HTTP method naming conventions
 
+```typescript
+export class RepositoryUsers {
+  constructor(private fetchInstance: any) {}
+
+  /**
+   * Get all users
+   */
+  getUsers(params?: IQ_GetUsers): Promise<I_User[]> {
+    return this.fetchInstance<I_User[]>(`/users`, {
+      method: "GET",
+      query: params,
+    });
+  }
+
+  /**
+   * Create a new user
+   */
+  createUser(payload: P_CreateUser): Promise<I_User> {
+    return this.fetchInstance<I_User>(`/users`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+```
+
 ## File Structure
 
 ```
@@ -128,7 +209,8 @@ generated/
 └── repositories/               # Generated repository classes
     ├── RepositoryUsers.ts
     ├── RepositoryProducts.ts
-    └── ...
+    ├── RepositoryOrders.ts
+    └── index.ts                # Barrel exports
 ```
 
 ## Configuration
@@ -140,12 +222,85 @@ The generator uses intelligent defaults but can be customized:
 - **Type Resolution**: Automatically resolves `$ref` references
 - **Output Format**: Clean, readable TypeScript code with JSDoc comments
 
-## Examples
+## Validation and Info Commands
+
+### Validate Command
+
+```bash
+# Validate a swagger specification
+elegant-swagger validate ./swagger.json
+elegant-swagger validate https://api.example.com/swagger.json
+```
+
+Output:
+
+```
+✅ Swagger specification is valid!
+📋 OpenAPI version: 3.0.1
+📚 Title: My API
+🔢 Version: 1.0.0
+📊 Schemas: 25
+🛣️  Paths: 15
+```
+
+### Info Command
+
+```bash
+# Get detailed information about a swagger file
+elegant-swagger info ./swagger.json
+```
+
+Output:
+
+```
+📋 Swagger Specification Information:
+   OpenAPI Version: 3.0.1
+   Title: My API
+   Version: 1.0.0
+   Description: A comprehensive API for managing users and products
+
+📊 Components:
+   Schemas: 25
+   Paths: 15
+   HTTP Methods: GET, POST, PUT, DELETE
+
+📝 Example Schemas (first 5):
+   User: object (5 properties)
+   Product: object (8 properties)
+   Order: object (6 properties)
+```
+
+## Real-World Example
 
 ### Input: Swagger Schema
 
 ```json
 {
+  "openapi": "3.0.1",
+  "info": {
+    "title": "E-commerce API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get all users",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "User": {
@@ -155,7 +310,7 @@ The generator uses intelligent defaults but can be customized:
           "name": { "type": "string" },
           "status": {
             "type": "string",
-            "enum": ["active", "inactive"]
+            "enum": ["active", "inactive", "pending"]
           }
         }
       }
@@ -166,35 +321,46 @@ The generator uses intelligent defaults but can be customized:
 
 ### Generated Output
 
-#### Enums
+Running:
+
+```bash
+elegant-swagger generate ./swagger.json --output ./src/api
+```
+
+Creates:
+
+**`src/api/enums.ts`**
 
 ```typescript
 export enum E_UserStatus {
   active = "active",
   inactive = "inactive",
+  pending = "pending",
 }
 ```
 
-#### Interfaces
+**`src/api/interfaces.ts`**
 
 ```typescript
 export interface I_User {
   id?: number;
   name?: string;
-  status?: Enums.E_UserStatus;
+  status?: E_UserStatus;
 }
 ```
 
-#### Repository Methods
+**`src/api/repositories/RepositoryUsers.ts`**
 
 ```typescript
 export class RepositoryUsers {
-  // ... constructor and fetchInstance
+  constructor(private fetchInstance: any) {}
 
-  getUser(params: IQ_GET_Users) {
-    return this.fetchInstance<I_User>(`/users`, {
+  /**
+   * Get all users
+   */
+  getUsers(): Promise<I_User[]> {
+    return this.fetchInstance<I_User[]>(`/users`, {
       method: "GET",
-      query: params,
     });
   }
 }
@@ -204,19 +370,70 @@ export class RepositoryUsers {
 
 The CLI provides clear error messages for common issues:
 
-- Invalid swagger specification
-- File not found
-- Network errors for remote URLs
-- JSON parsing errors
-- Missing required fields
+- ❌ Invalid swagger specification format
+- 📁 File not found errors
+- 🌐 Network errors for remote URLs
+- 📄 JSON parsing errors
+- ⚠️ Missing required fields or malformed schemas
+
+Use the `--verbose` flag for detailed error information:
+
+```bash
+elegant-swagger generate ./swagger.json --verbose
+```
+
+## Programmatic Usage
+
+You can also use this package programmatically in your Deno projects:
+
+```typescript
+import {
+  generateEnum,
+  generateInterfaces,
+  generateRepositories,
+} from "jsr:@devex/elegant-swagger-codegen";
+
+// Load your swagger spec
+const swaggerSpec = await fetch("https://api.example.com/swagger.json").then(
+  (r) => r.json()
+);
+
+// Generate types
+await generateEnum(swaggerSpec.components);
+await generateInterfaces(swaggerSpec.components, swaggerSpec.paths);
+await generateRepositories(swaggerSpec);
+```
+
+## Package Information
+
+- **Package**: `jsr:@devex/elegant-swagger-codegen`
+- **Version**: 0.1.0
+- **JSR Score**: 62%
+- **Registry**: [JSR (JavaScript Registry)](https://jsr.io/@devex/elegant-swagger-codegen)
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Add tests if applicable
-5. Submit a pull request
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/devex/elegant-swagger-codegen.git
+cd elegant-swagger-codegen
+
+# Run in development mode
+deno task dev
+
+# Test with your swagger file
+deno task generate ./swagger.json
+```
 
 ## License
 
@@ -228,5 +445,17 @@ If you encounter any issues or have questions:
 
 1. Check the error messages for guidance
 2. Use the `--verbose` flag for detailed logging
-3. Validate your swagger file first using the `validate` command
-4. Open an issue on GitHub with your swagger file and error details
+3. Validate your swagger file first: `elegant-swagger validate ./swagger.json`
+4. Check our [JSR package page](https://jsr.io/@devex/elegant-swagger-codegen) for examples
+5. Open an issue on GitHub with your swagger file and error details
+
+## Changelog
+
+### 0.1.0 (Latest)
+
+- 🎉 Initial release
+- ✅ Support for OpenAPI 3.0+ specifications
+- 🚀 Generate TypeScript enums, interfaces, and repositories
+- 🌐 Support for both local files and remote URLs
+- 📊 Validation and info commands
+- 🎯 Selective generation options
