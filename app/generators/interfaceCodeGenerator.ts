@@ -142,12 +142,24 @@ function isBaseInterface(
   schemaName: string,
   schema?: OpenAPIV3.SchemaObject
 ): boolean {
+  // FIRST: Check if this is a request schema (should NOT be classified as base)
+  if (
+    schemaName.includes("Request") ||
+    schemaName.includes("Command") ||
+    schemaName.includes("Input") ||
+    schemaName.includes("Create") ||
+    schemaName.includes("Update") ||
+    schemaName.includes("Delete") ||
+    schemaName.includes("Patch")
+  ) {
+    return false; // This is a request schema, not a base interface
+  }
+
   // Check if the name suggests it's a base class
   if (
     schemaName.includes("Base") ||
     schemaName.includes("Entity") ||
     schemaName.includes("Audited") ||
-    schemaName.includes("Creation") ||
     schemaName.includes("Modification")
   ) {
     return true;
@@ -156,22 +168,53 @@ function isBaseInterface(
   // Check if the schema structure suggests it's a base class
   if (schema) {
     // Abstract classes
-    if ((schema as any)["x-abstract"] === true) {
+    if ((schema as Record<string, unknown>)["x-abstract"] === true) {
       return true;
     }
 
     // Schemas that only have allOf with $ref (base entity pattern)
     if (schema.allOf && schema.allOf.length > 0) {
       const hasOnlyRefAndMinimalProperties =
-        schema.allOf.some((item: any) => item.$ref) &&
+        schema.allOf.some(
+          (item: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject) =>
+            "$ref" in item && item.$ref
+        ) &&
         (!schema.properties || Object.keys(schema.properties).length === 0);
       if (hasOnlyRefAndMinimalProperties) {
         return true;
       }
     }
 
-    // Empty schemas that are likely base classes
+    // Empty schemas that are likely base classes - but exclude request schemas
     if (!schema.properties || Object.keys(schema.properties).length === 0) {
+      // Check if this is a request schema (should not be classified as base)
+      if (schema.allOf && Array.isArray(schema.allOf)) {
+        const baseSchemas = schema.allOf.filter(
+          (s) =>
+            !("$ref" in s) ||
+            s.$ref.includes("Request") ||
+            s.$ref.includes("Command") ||
+            s.$ref.includes("Input")
+        );
+        if (baseSchemas.length > 0) {
+          return false; // This is a request schema, not a base interface
+        }
+      }
+
+      // Check description for clues
+      if (schema.description?.toLowerCase().includes("request")) {
+        return false; // This is a request schema, not a base interface
+      }
+
+      // Check for OpenAPI extensions that might indicate purpose
+      if (
+        (schema as Record<string, unknown>)["x-purpose"] === "request" ||
+        (schema as Record<string, unknown>)["x-type"] === "request"
+      ) {
+        return false; // This is a request schema, not a base interface
+      }
+
+      // Only classify as base if it has inheritance and no request indicators
       if (schema.allOf || schema.oneOf || schema.anyOf) {
         return true;
       }
@@ -196,7 +239,8 @@ function analyzeSchemaStructure(
         (s) =>
           !("$ref" in s) ||
           s.$ref.includes("Request") ||
-          s.$ref.includes("Command")
+          s.$ref.includes("Command") ||
+          s.$ref.includes("Input")
       );
       if (baseSchemas.length > 0) {
         return "P"; // Request
@@ -210,9 +254,18 @@ function analyzeSchemaStructure(
 
     // Check for OpenAPI extensions that might indicate purpose
     if (
-      (schema as any)["x-purpose"] === "request" ||
-      (schema as any)["x-type"] === "request"
+      (schema as Record<string, unknown>)["x-purpose"] === "request" ||
+      (schema as Record<string, unknown>)["x-type"] === "request"
     ) {
+      return "P"; // Request
+    }
+
+    // Check if the schema name itself suggests it's a request
+    if (schemaName.includes("Request") && !schemaName.includes("Dto")) {
+      return "P"; // Request
+    }
+
+    if (schemaName.includes("Command") || schemaName.includes("Input")) {
       return "P"; // Request
     }
   }
