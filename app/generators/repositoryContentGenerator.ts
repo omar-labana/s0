@@ -24,8 +24,8 @@ export function generateRepositoryContent(repository: RepositoryFile): string {
 // Found ${endpoints.length} endpoint(s)
 
 import { $Fetch } from "ofetch";
-import * as Interfaces from "@/interfaces";
-import * as Enums from "@/enums";
+import * as Interfaces from "../../generated/interfaces.ts";
+import * as Enums from "../../generated/enums.ts";
 
 ${queryInterfaces}
 
