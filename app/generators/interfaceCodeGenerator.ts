@@ -84,17 +84,188 @@ export function generateInterfaceCode(
   return interfaceCode;
 }
 
+/**
+ * Intelligent interface naming based on actual schema structure and usage patterns
+ * This replaces hardcoded string matching with real analysis
+ */
 export function determineInterfaceName(
   schemaName: string,
-  usage: SchemaUsage
+  usage: SchemaUsage,
+  schema?: OpenAPIV3.SchemaObject
 ): string {
+  // If we have schema usage information, use it as the primary indicator
   if (usage.isRequest) {
     return `P_${schemaName}`; // Payload
   } else if (usage.isQuery) {
     return `Q_${schemaName}`; // Query
-  } else {
-    return `I_${schemaName}`; // DTO (default)
+  } else if (usage.isResponse) {
+    return `I_${schemaName}`; // Response DTO
   }
+
+  // If no usage info, analyze the schema structure itself
+  if (schema) {
+    const interfaceType = analyzeSchemaStructure(schema, schemaName);
+    if (interfaceType) {
+      return `${interfaceType}_${schemaName}`;
+    }
+  }
+
+  // Fallback: analyze the schema name for common patterns
+  const fallbackType = analyzeSchemaName(schemaName);
+  return `${fallbackType}_${schemaName}`;
+}
+
+/**
+ * Analyze schema structure to determine interface type
+ */
+function analyzeSchemaStructure(
+  schema: OpenAPIV3.SchemaObject,
+  schemaName: string
+): string | null {
+  // Check if this is an empty schema (likely a request wrapper)
+  if (!schema.properties || Object.keys(schema.properties).length === 0) {
+    // Check if it extends from a base request schema
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+      const baseSchemas = schema.allOf.filter(
+        (s) =>
+          !("$ref" in s) ||
+          s.$ref.includes("Request") ||
+          s.$ref.includes("Command")
+      );
+      if (baseSchemas.length > 0) {
+        return "P"; // Request
+      }
+    }
+
+    // Check description for clues
+    if (schema.description?.toLowerCase().includes("request")) {
+      return "P"; // Request
+    }
+
+    // Check for OpenAPI extensions that might indicate purpose
+    if (
+      (schema as any)["x-purpose"] === "request" ||
+      (schema as any)["x-type"] === "request"
+    ) {
+      return "P"; // Request
+    }
+  }
+
+  // Check if this is a data transfer object (has meaningful properties)
+  if (schema.properties && Object.keys(schema.properties).length > 0) {
+    // Check if it extends from a base entity
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+      const baseSchemas = schema.allOf.filter(
+        (s) =>
+          !("$ref" in s) ||
+          s.$ref.includes("Entity") ||
+          s.$ref.includes("Dto") ||
+          s.$ref.includes("Model")
+      );
+      if (baseSchemas.length > 0) {
+        return "I"; // Response DTO
+      }
+    }
+
+    // Check if it has typical DTO properties
+    const hasId = "id" in schema.properties;
+    const hasTimestamps =
+      "createdAt" in schema.properties || "updatedAt" in schema.properties;
+    const hasAuditFields =
+      "createdBy" in schema.properties || "modifiedBy" in schema.properties;
+
+    if (hasId || hasTimestamps || hasAuditFields) {
+      return "I"; // Response DTO
+    }
+
+    // Check description for clues
+    if (
+      schema.description?.toLowerCase().includes("dto") ||
+      schema.description?.toLowerCase().includes("response") ||
+      schema.description?.toLowerCase().includes("entity")
+    ) {
+      return "I"; // Response DTO
+    }
+  }
+
+  // Check for inheritance patterns
+  if (schema.allOf && Array.isArray(schema.allOf)) {
+    const baseSchemaNames = schema.allOf
+      .filter((s) => "$ref" in s)
+      .map((s) => (s as OpenAPIV3.ReferenceObject).$ref.split("/").pop() || "")
+      .filter((name) => name.length > 0);
+
+    // If it extends from request-like schemas
+    if (
+      baseSchemaNames.some(
+        (name) =>
+          name.includes("Request") ||
+          name.includes("Command") ||
+          name.includes("Input")
+      )
+    ) {
+      return "P"; // Request
+    }
+
+    // If it extends from response-like schemas
+    if (
+      baseSchemaNames.some(
+        (name) =>
+          name.includes("Dto") ||
+          name.includes("Response") ||
+          name.includes("Entity") ||
+          name.includes("Model")
+      )
+    ) {
+      return "I"; // Response DTO
+    }
+  }
+
+  return null; // Could not determine from structure
+}
+
+/**
+ * Analyze schema name for common patterns (fallback method)
+ */
+function analyzeSchemaName(schemaName: string): string {
+  // Check for explicit type indicators in the name
+  if (schemaName.includes("Request") && !schemaName.includes("Dto")) {
+    return "P"; // Request
+  }
+
+  if (schemaName.includes("Command") || schemaName.includes("Input")) {
+    return "P"; // Request
+  }
+
+  if (
+    schemaName.includes("Dto") ||
+    schemaName.includes("Response") ||
+    schemaName.includes("Entity") ||
+    schemaName.includes("Model")
+  ) {
+    return "I"; // Response DTO
+  }
+
+  // Check for common suffixes
+  if (
+    schemaName.endsWith("Request") ||
+    schemaName.endsWith("Command") ||
+    schemaName.endsWith("Input")
+  ) {
+    return "P"; // Request
+  }
+
+  if (
+    schemaName.endsWith("Dto") ||
+    schemaName.endsWith("Response") ||
+    schemaName.endsWith("Entity") ||
+    schemaName.endsWith("Model")
+  ) {
+    return "I"; // Response DTO
+  }
+
+  // Default to response DTO for unknown types
+  return "I";
 }
 
 export function generateHeaderComment(

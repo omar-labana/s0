@@ -59,6 +59,39 @@ export function analyzeSchemaUsage(
     return refs;
   }
 
+  // Enhanced function to extract schema references from response objects
+  function extractResponseSchemaRefs(response: unknown): string[] {
+    if (!response || typeof response !== "object") return [];
+
+    const responseObj = response as Record<string, unknown>;
+    const refs: string[] = [];
+
+    // Check for content in response
+    if (responseObj.content && typeof responseObj.content === "object") {
+      Object.values(responseObj.content as Record<string, unknown>).forEach(
+        (mediaType) => {
+          if (
+            mediaType &&
+            typeof mediaType === "object" &&
+            "schema" in mediaType
+          ) {
+            // Use the helper function to extract all schema references
+            const schemaRefs = extractSchemaRefs(mediaType.schema);
+            refs.push(...schemaRefs);
+          }
+        }
+      );
+    }
+
+    // Also check for direct schema reference (some APIs use this)
+    if ("schema" in responseObj) {
+      const schemaRefs = extractSchemaRefs(responseObj.schema);
+      refs.push(...schemaRefs);
+    }
+
+    return refs;
+  }
+
   Object.entries(paths).forEach(([pathUrl, pathItem]) => {
     if (!pathItem || typeof pathItem !== "object") return;
 
@@ -111,44 +144,27 @@ export function analyzeSchemaUsage(
         }
       }
 
-      // Check response schemas
+      // Enhanced response schema analysis
       if (
         operationObj.responses &&
         typeof operationObj.responses === "object"
       ) {
-        Object.values(
+        Object.entries(
           operationObj.responses as Record<string, unknown>
-        ).forEach((response) => {
+        ).forEach(([statusCode, response]) => {
+          // Focus on successful responses (2xx) and common response codes
           if (
-            response &&
-            typeof response === "object" &&
-            "content" in response
+            statusCode.startsWith("2") ||
+            ["200", "201", "204"].includes(statusCode)
           ) {
-            const responseObj = response as Record<string, unknown>;
-            if (
-              responseObj.content &&
-              typeof responseObj.content === "object"
-            ) {
-              Object.values(
-                responseObj.content as Record<string, unknown>
-              ).forEach((mediaType) => {
-                if (
-                  mediaType &&
-                  typeof mediaType === "object" &&
-                  "schema" in mediaType
-                ) {
-                  // Use the helper function to extract all schema references
-                  const schemaRefs = extractSchemaRefs(mediaType.schema);
-                  schemaRefs.forEach((refName) => {
-                    const existing =
-                      usage.get(refName) || createDefaultUsage(refName);
-                    existing.isResponse = true;
-                    existing.httpMethods.push(method.toUpperCase());
-                    usage.set(refName, existing);
-                  });
-                }
-              });
-            }
+            const schemaRefs = extractResponseSchemaRefs(response);
+            schemaRefs.forEach((refName) => {
+              const existing =
+                usage.get(refName) || createDefaultUsage(refName);
+              existing.isResponse = true;
+              existing.httpMethods.push(method.toUpperCase());
+              usage.set(refName, existing);
+            });
           }
         });
       }

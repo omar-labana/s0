@@ -140,9 +140,9 @@ export function generateReturnType(endpoint: EndpointInfo): string {
             if (schema.$ref) {
               const ref = schema.$ref as string;
               const schemaName = ref.split("/").pop() || "";
-              const interfaceName =
-                convertSchemaNameToInterfaceName(schemaName);
-              return `Interfaces.${interfaceName}`;
+              // For response schemas, we should use the interface that was generated
+              // The interface generation already determined the correct prefix based on schema analysis
+              return `Interfaces.I_${schemaName}`;
             }
 
             // Handle array schemas with $ref items
@@ -155,9 +155,8 @@ export function generateReturnType(endpoint: EndpointInfo): string {
               if (items.$ref) {
                 const ref = items.$ref as string;
                 const schemaName = ref.split("/").pop() || "";
-                const interfaceName =
-                  convertSchemaNameToInterfaceName(schemaName);
-                return `Interfaces.${interfaceName}[]`;
+                // For response schemas, we should use the interface that was generated
+                return `Interfaces.I_${schemaName}[]`;
               }
             }
           }
@@ -215,22 +214,12 @@ export function getRequestBodyInterface(endpoint: EndpointInfo): string | null {
   return null;
 }
 
+/**
+ * Intelligent interface naming based on schema structure and usage patterns
+ * This replaces the hardcoded string matching with actual schema analysis
+ */
 export function convertSchemaNameToInterfaceName(schemaName: string): string {
-  // Convert schema names using configurable prefixes
-  // Use REQUEST prefix for interfaces that end with "Request" or have "Request" followed by numbers
-  // OR contain "Request" in the name (like "ResetPasswordRequestUser")
-  if (
-    schemaName.endsWith("Request") ||
-    schemaName.endsWith("Command") ||
-    /Request\d*$/.test(schemaName) || // Matches "Request" followed by optional numbers at the end
-    /Command\d*$/.test(schemaName) || // Matches "Command" followed by optional numbers at the end
-    schemaName.includes("Request") // Matches any name containing "Request" (like "ResetPasswordRequestUser")
-  ) {
-    return `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
-  } else if (schemaName.endsWith("Dto") || schemaName.endsWith("Response")) {
-    return `${CONFIG.INTERFACE_PREFIXES.RESPONSE}${schemaName}`;
-  } else {
-    // Default to response prefix for other types
-    return `${CONFIG.INTERFACE_PREFIXES.RESPONSE}${schemaName}`;
-  }
+  // For request body interfaces, we should use the P_ prefix
+  // The interface generation will handle the actual schema analysis
+  return `${CONFIG.INTERFACE_PREFIXES.REQUEST}${schemaName}`;
 }

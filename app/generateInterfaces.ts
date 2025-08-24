@@ -49,8 +49,8 @@ export function generateInterfaces(
         httpMethods: [],
       };
 
-      // Determine interface type based on usage analysis
-      const interfaceName = determineInterfaceName(schemaName, usage);
+      // Determine interface type based on usage analysis and schema structure
+      const interfaceName = determineInterfaceName(schemaName, usage, schema);
 
       // Generate TypeScript interface
       const interfaceCode = generateInterfaceCode(
