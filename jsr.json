@@ -1,0 +1,21 @@
+{
+  "name": "@devex/elegant-swagger-codegen",
+  "version": "0.2.0",
+  "license": "MIT",
+  "exports": "./main.ts",
+  "imports": {
+    "citty": "npm:citty@0.1.6",
+    "consola": "npm:consola@3.4.2",
+    "ofetch": "npm:ofetch@1.4.1",
+    "openapi-types": "npm:openapi-types@12.1.3",
+    "scule": "npm:scule@1.3.0",
+    "swagger-typescript-api": "npm:swagger-typescript-api@13.2.8",
+    "@/*": "./*",
+    "@/app/*": "./app/*",
+    "@/generated/*": "./generated/*",
+    "@/enums": "./generated/enums.ts",
+    "@/interfaces": "./generated/interfaces.ts",
+    "@/repositories": "./generated/repositories.ts",
+    "@/swagger": "./swagger.json"
+  }
+}
