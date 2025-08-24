@@ -1,7 +1,7 @@
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
-import process from "node:process";
-import type { OpenAPIV3 } from "npm:openapi-types";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
+import process from "process";
+import type { OpenAPIV3 } from "openapi-types";
 import { RepositoryFile } from "./types.ts";
 import { CONFIG } from "./config.ts";
 import { parseParameters, setSwaggerSchemaContext } from "./utils.ts";

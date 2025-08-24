@@ -1,7 +1,7 @@
 import type { OpenAPIV3 } from "openapi-types";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
-import process from "node:process";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
+import process from "process";
 
 // Type for schemas with custom enum properties
 type SchemaWithCustomProps = OpenAPIV3.SchemaObject & {

@@ -1,6 +1,6 @@
 import { defineCommand, runMain } from "citty";
 import consola from "consola";
-import { $fetch } from "npm:ofetch";
+import { $fetch } from "ofetch";
 import { generateEnum } from "./app/generateEnums.ts";
 import { generateInterfaces } from "./app/generateInterfaces.ts";
 import { generateRepositories } from "./app/generators/repositoryOrchestrator.ts";

@@ -6,7 +6,7 @@ import {
   generateHeaderComment,
   writeInterfacesToFile,
   logGenerationResults,
-  SchemaUsage,
+  type SchemaUsage,
 } from "./generators/index.ts";
 
 export function generateInterfaces(

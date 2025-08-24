@@ -1,6 +1,6 @@
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
-import process from "node:process";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
+import process from "process";
 
 export function writeInterfacesToFile(
   content: string,
