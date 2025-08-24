@@ -32,6 +32,29 @@ export function getPropertyType(
   // Now we know it's a SchemaObject
   const schema = propSchema as OpenAPIV3.SchemaObject;
 
+  // Handle allOf schemas (common pattern for navigation properties)
+  if (schema.allOf && Array.isArray(schema.allOf)) {
+    // Look for $ref in allOf
+    const refSchema = schema.allOf.find((item) => "$ref" in item);
+    if (refSchema && "$ref" in refSchema) {
+      const refName = refSchema.$ref.split("/").pop() || "unknown";
+      const resolvedSchema = allSchemas[refName];
+      if (resolvedSchema) {
+        // Check if this is an enum schema
+        if (
+          !("$ref" in resolvedSchema) &&
+          (resolvedSchema as OpenAPIV3.SchemaObject).enum &&
+          Array.isArray((resolvedSchema as OpenAPIV3.SchemaObject).enum)
+        ) {
+          return `Enums.E_${refName}`;
+        } else {
+          return `I_${refName}`;
+        }
+      }
+      return `I_${refName}`;
+    }
+  }
+
   // Handle oneOf schemas
   if (schema.oneOf && Array.isArray(schema.oneOf)) {
     const oneOfTypes: string[] = [];
@@ -67,6 +90,39 @@ export function getPropertyType(
     }
   }
 
+  // Handle anyOf schemas
+  if (schema.anyOf && Array.isArray(schema.anyOf)) {
+    const anyOfTypes: string[] = [];
+    schema.anyOf.forEach((anyOfSchema) => {
+      if ("$ref" in anyOfSchema) {
+        const refName = anyOfSchema.$ref.split("/").pop() || "unknown";
+        const resolvedSchema = allSchemas[refName];
+        if (resolvedSchema) {
+          if ("$ref" in resolvedSchema) {
+            anyOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+          } else {
+            const schemaObj = resolvedSchema as OpenAPIV3.SchemaObject;
+            if (schemaObj.enum && Array.isArray(schemaObj.enum)) {
+              anyOfTypes.push(`Enums.E_${refName}`);
+            } else if (schemaObj.type === "object" || schemaObj.properties) {
+              anyOfTypes.push(`I_${refName}`);
+            } else {
+              anyOfTypes.push(getPropertyType(resolvedSchema, allSchemas));
+            }
+          }
+        }
+      } else {
+        anyOfTypes.push(getPropertyType(anyOfSchema, allSchemas));
+      }
+    });
+
+    if (anyOfTypes.length === 1) {
+      return anyOfTypes[0];
+    } else if (anyOfTypes.length > 1) {
+      return anyOfTypes.join(" | ");
+    }
+  }
+
   if (schema.enum && Array.isArray(schema.enum)) {
     let enumName =
       schema.title ||
@@ -81,10 +137,31 @@ export function getPropertyType(
   }
 
   if (schema.type === "array") {
-    const itemType = schema.items
-      ? getPropertyType(schema.items, allSchemas)
-      : "unknown";
-    return `${itemType}[]`;
+    if (schema.items) {
+      // Handle $ref in items
+      if ("$ref" in schema.items) {
+        const refName = schema.items.$ref.split("/").pop() || "unknown";
+        const resolvedSchema = allSchemas[refName];
+        if (resolvedSchema) {
+          // Check if this is an enum schema
+          if (
+            !("$ref" in resolvedSchema) &&
+            (resolvedSchema as OpenAPIV3.SchemaObject).enum &&
+            Array.isArray((resolvedSchema as OpenAPIV3.SchemaObject).enum)
+          ) {
+            return `Enums.E_${refName}[]`;
+          } else {
+            // This is an interface reference
+            return `I_${refName}[]`;
+          }
+        }
+        return `I_${refName}[]`;
+      }
+      // Handle other item types
+      const itemType = getPropertyType(schema.items, allSchemas);
+      return `${itemType}[]`;
+    }
+    return "unknown[]";
   }
 
   if (schema.type === "object") {
@@ -98,7 +175,19 @@ export function getPropertyType(
       );
       return `Record<string, ${valueType}>`;
     }
-    return "object";
+
+    // If it has properties, it's a proper object type
+    if (schema.properties && Object.keys(schema.properties).length > 0) {
+      return "object";
+    }
+
+    // If it's an empty object but has allOf/oneOf/anyOf, it's likely an interface
+    if (schema.allOf || schema.oneOf || schema.anyOf) {
+      return "object";
+    }
+
+    // For truly empty objects, return any
+    return "any";
   }
 
   if (schema.type === "integer") {
