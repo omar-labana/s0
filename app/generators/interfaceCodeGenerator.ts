@@ -242,10 +242,10 @@ class SwaggerPatternLearner {
    * Learn patterns from actual API paths and their usage
    */
   learnFromApiPaths(paths: OpenAPIV3.PathsObject): void {
-    Object.entries(paths).forEach(([path, pathItem]) => {
+    Object.entries(paths).forEach(([_path, pathItem]) => {
       if (!pathItem) return;
 
-      Object.entries(pathItem).forEach(([method, operation]) => {
+      Object.entries(pathItem).forEach(([_method, operation]) => {
         if (!operation || typeof operation !== "object") return;
 
         const op = operation as OpenAPIV3.OperationObject;
@@ -338,7 +338,7 @@ class SwaggerPatternLearner {
    */
   isRequestSchema(
     schemaName: string,
-    schema?: OpenAPIV3.SchemaObject
+    _schema?: OpenAPIV3.SchemaObject
   ): boolean {
     // First check learned patterns
     if (this.learnedPatterns.requestSchemas.has(schemaName)) {
@@ -355,7 +355,7 @@ class SwaggerPatternLearner {
 
   isResponseSchema(
     schemaName: string,
-    schema?: OpenAPIV3.SchemaObject
+    _schema?: OpenAPIV3.SchemaObject
   ): boolean {
     if (this.learnedPatterns.responseSchemas.has(schemaName)) {
       return true;
@@ -370,7 +370,7 @@ class SwaggerPatternLearner {
 
   isBaseClassSchema(
     schemaName: string,
-    schema?: OpenAPIV3.SchemaObject
+    _schema?: OpenAPIV3.SchemaObject
   ): boolean {
     if (this.learnedPatterns.baseClassSchemas.has(schemaName)) {
       return true;
@@ -479,7 +479,7 @@ export function createAdaptiveInterfaceNamer(
   return {
     determineInterfaceName: (
       schemaName: string,
-      usage: any,
+      usage: SchemaUsage,
       schema?: OpenAPIV3.SchemaObject
     ): string => {
       // Use learned patterns first, then fallback to usage analysis
@@ -526,7 +526,7 @@ export function learnPropertyPatterns(
 
   // Extract common patterns
   const commonProperties = Array.from(propertyFrequency.entries())
-    .filter(([prop, count]) => count >= 3) // Appears in at least 3 schemas
+    .filter(([_prop, count]) => count >= 3) // Appears in at least 3 schemas
     .map(([prop]) => prop);
 
   // Categorize properties
@@ -565,7 +565,7 @@ export function learnPropertyPatterns(
 export function determineInterfaceName(
   schemaName: string,
   usage: SchemaUsage,
-  schema?: OpenAPIV3.SchemaObject
+  _schema?: OpenAPIV3.SchemaObject
 ): string {
   // This is now a legacy function - the new approach should use createAdaptiveInterfaceNamer
   // For now, provide a basic fallback
