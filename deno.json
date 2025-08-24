@@ -1,7 +1,10 @@
 {
   "tasks": {
     "dev": "deno run --watch main.ts",
-    "start": "deno run --allow-env --allow-read main.ts",
+    "start": "deno run --allow-env --allow-read --allow-net --allow-write main.ts",
+    "generate": "deno run --allow-env --allow-read --allow-net --allow-write main.ts generate",
+    "validate": "deno run --allow-env --allow-read --allow-net main.ts validate",
+    "info": "deno run --allow-env --allow-read --allow-net main.ts info",
     "swagger": "swagger-typescript-api generate --path ./swagger.json --output ./app/generated --no-client --name swagger.ts"
   },
   "imports": {
