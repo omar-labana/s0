@@ -25,6 +25,7 @@ export function generateRepositoryContent(repository: RepositoryFile): string {
 
 import { $Fetch } from "npm:ofetch";
 import * as Interfaces from "@/interfaces";
+import * as Enums from "@/enums";
 
 ${queryInterfaces}
 

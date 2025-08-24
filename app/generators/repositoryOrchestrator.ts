@@ -4,7 +4,7 @@ import process from "node:process";
 import type { OpenAPIV3 } from "npm:openapi-types";
 import { RepositoryFile } from "./types.ts";
 import { CONFIG } from "./config.ts";
-import { parseParameters } from "./utils.ts";
+import { parseParameters, setSwaggerSchemaContext } from "./utils.ts";
 import {
   generateRepositoryContent,
   normalizeTagName,
@@ -13,6 +13,9 @@ import {
 // Main orchestrator for repository generation
 
 export function generateRepositories(swagger: OpenAPIV3.Document) {
+  // Set the swagger schema context for type resolution
+  setSwaggerSchemaContext(swagger);
+
   const paths = swagger.paths;
   const repositories = new Map<string, RepositoryFile>();
 

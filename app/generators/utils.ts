@@ -2,6 +2,41 @@ import { ParameterInfo } from "./types.ts";
 
 // Utility functions for the repository generator
 
+// Global swagger schema context - set once at the start of generation
+let swaggerSchemaContext: any = null;
+
+// Set the swagger schema context for the current generation session
+export function setSwaggerSchemaContext(schema: any) {
+  swaggerSchemaContext = schema;
+}
+
+// Check if a schema exists as an enum or interface by examining the Swagger schema directly
+function resolveSchemaReference(schemaName: string): string {
+  if (!swaggerSchemaContext) {
+    console.warn("Swagger schema context not set, falling back to unknown");
+    return "unknown";
+  }
+
+  const schema = swaggerSchemaContext.components?.schemas?.[schemaName];
+
+  if (!schema) {
+    return "unknown";
+  }
+
+  // Check if it's an enum based on schema properties
+  if (schema.enum || schema["x-enumNames"]) {
+    return `Enums.E_${schemaName}`;
+  }
+
+  // Check if it's an interface based on schema properties
+  if (schema.properties || schema.type === "object") {
+    return `Interfaces.I_${schemaName}`;
+  }
+
+  // For primitive types, fall back to unknown
+  return "unknown";
+}
+
 export function parseParameters(parameters: unknown[]): ParameterInfo[] {
   return parameters
     .map((param) => {
@@ -19,6 +54,7 @@ export function parseParameters(parameters: unknown[]): ParameterInfo[] {
             format?: string;
             $ref?: string;
             oneOf?: Array<{ $ref?: string }>;
+            allOf?: Array<{ $ref?: string }>;
             items?: {
               type?: string;
               format?: string;
@@ -41,9 +77,6 @@ export function getParameterType(param: ParameterInfo): string {
   if (param.schema?.$ref) {
     // Handle schema reference - extract the schema name from the $ref
     const refName = param.schema.$ref.split("/").pop() || "unknown";
-    console.log(
-      `🔍 Resolving $ref for ${param.name}: ${param.schema.$ref} -> ${refName}`
-    );
     // Convert schema name to interface name (e.g., "TableOrder" -> "I_TableOrder")
     return `Interfaces.I_${refName}`;
   }
@@ -61,12 +94,26 @@ export function getParameterType(param: ParameterInfo): string {
           ?.toString()
           .split("/")
           .pop() || "unknown";
-      console.log(
-        `🔍 Resolving oneOf $ref for ${param.name}: ${
-          (oneOfSchema as Record<string, unknown>).$ref
-        } -> ${refName}`
-      );
       return `Interfaces.I_${refName}`;
+    }
+  }
+
+  // Handle allOf schemas (like durationTypeCode: { allOf: [{ $ref: "#/components/schemas/DurationTypeCodes" }] })
+  if (param.schema?.allOf && Array.isArray(param.schema.allOf)) {
+    const allOfSchema = param.schema.allOf[0]; // Take the first one
+    if (
+      allOfSchema &&
+      typeof allOfSchema === "object" &&
+      "$ref" in allOfSchema
+    ) {
+      const refName =
+        (allOfSchema as Record<string, unknown>).$ref
+          ?.toString()
+          .split("/")
+          .pop() || "unknown";
+
+      // Use the intelligent schema resolution function
+      return resolveSchemaReference(refName);
     }
   }
 
@@ -82,7 +129,6 @@ export function getParameterType(param: ParameterInfo): string {
     return mapSwaggerTypeToTypeScript(param.type, param.format);
   }
 
-  console.log(`🔍 Falling back to unknown for parameter: ${param.name}`);
   return "unknown";
 }
 

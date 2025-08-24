@@ -12,6 +12,7 @@ export interface ParameterInfo {
     format?: string;
     $ref?: string;
     oneOf?: Array<{ $ref?: string }>;
+    allOf?: Array<{ $ref?: string }>;
     items?: {
       type?: string;
       format?: string;
