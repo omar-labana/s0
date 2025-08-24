@@ -10,9 +10,12 @@ export interface ParameterInfo {
   schema?: {
     type?: string;
     format?: string;
+    $ref?: string;
+    oneOf?: Array<{ $ref?: string }>;
     items?: {
       type?: string;
       format?: string;
+      $ref?: string;
     };
   };
 }

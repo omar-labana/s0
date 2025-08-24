@@ -17,8 +17,12 @@ export function parseParameters(parameters: unknown[]): ParameterInfo[] {
           schema: paramObj.schema as {
             type?: string;
             format?: string;
+            $ref?: string;
+            oneOf?: Array<{ $ref?: string }>;
             items?: {
               type?: string;
+              format?: string;
+              $ref?: string;
             };
           },
         };
@@ -34,6 +38,38 @@ export function parseParameters(parameters: unknown[]): ParameterInfo[] {
 
 export function getParameterType(param: ParameterInfo): string {
   // Check schema first, then fall back to type
+  if (param.schema?.$ref) {
+    // Handle schema reference - extract the schema name from the $ref
+    const refName = param.schema.$ref.split("/").pop() || "unknown";
+    console.log(
+      `🔍 Resolving $ref for ${param.name}: ${param.schema.$ref} -> ${refName}`
+    );
+    // Convert schema name to interface name (e.g., "TableOrder" -> "I_TableOrder")
+    return `Interfaces.I_${refName}`;
+  }
+
+  // Handle oneOf schemas (like tableOrder: { oneOf: [{ $ref: "#/components/schemas/TableOrder" }] })
+  if (param.schema?.oneOf && Array.isArray(param.schema.oneOf)) {
+    const oneOfSchema = param.schema.oneOf[0]; // Take the first one
+    if (
+      oneOfSchema &&
+      typeof oneOfSchema === "object" &&
+      "$ref" in oneOfSchema
+    ) {
+      const refName =
+        (oneOfSchema as Record<string, unknown>).$ref
+          ?.toString()
+          .split("/")
+          .pop() || "unknown";
+      console.log(
+        `🔍 Resolving oneOf $ref for ${param.name}: ${
+          (oneOfSchema as Record<string, unknown>).$ref
+        } -> ${refName}`
+      );
+      return `Interfaces.I_${refName}`;
+    }
+  }
+
   if (param.schema?.type) {
     return mapSwaggerTypeToTypeScript(
       param.schema.type,
@@ -46,6 +82,7 @@ export function getParameterType(param: ParameterInfo): string {
     return mapSwaggerTypeToTypeScript(param.type, param.format);
   }
 
+  console.log(`🔍 Falling back to unknown for parameter: ${param.name}`);
   return "unknown";
 }
 
