@@ -1,0 +1,40 @@
+// Type definitions for the repository generator
+
+export interface ParameterInfo {
+  name: string;
+  in: string;
+  required: boolean;
+  type?: string;
+  format?: string;
+  description?: string;
+  schema?: {
+    type?: string;
+    format?: string;
+    $ref?: string;
+    oneOf?: Array<{ $ref?: string }>;
+    allOf?: Array<{ $ref?: string }>;
+    items?: {
+      type?: string;
+      format?: string;
+      $ref?: string;
+    };
+  };
+}
+
+export interface EndpointInfo {
+  path: string;
+  method: string;
+  operationId: string;
+  tags: string[];
+  summary?: string;
+  description?: string;
+  parameters?: ParameterInfo[];
+  requestBody?: unknown;
+  responses?: unknown;
+  xName?: string; // Add x-name field from request body
+}
+
+export interface RepositoryFile {
+  tag: string;
+  endpoints: EndpointInfo[];
+}
