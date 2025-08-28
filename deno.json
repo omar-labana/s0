@@ -12,6 +12,7 @@
     "swagger": "swagger-typescript-api generate --path ./swagger.json --output ./app/generated --no-client --name swagger.ts"
   },
   "imports": {
+    "@nuxt/ui": "npm:@nuxt/ui@^3.3.2",
     "citty": "npm:citty@0.1.6",
     "consola": "npm:consola@3.4.2",
     "ofetch": "npm:ofetch@1.4.1",
