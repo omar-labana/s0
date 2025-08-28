@@ -183,22 +183,26 @@ export function getPropertyType(
         allSchemas,
         interfaceNameLookup
       );
-      return `${itemType}[]`;
+      return itemType.includes("|") || itemType.includes("&")
+        ? `(${itemType})[]`
+        : `${itemType}[]`;
     }
     return "unknown[]";
   }
 
   if (schema.type === "object") {
-    if (
-      "additionalProperties" in schema &&
-      schema.additionalProperties &&
-      typeof schema.additionalProperties === "object"
-    ) {
-      const valueType = getPropertyType(
-        schema.additionalProperties,
-        allSchemas
-      );
-      return `Record<string, ${valueType}>`;
+    if ("additionalProperties" in schema) {
+      const ap = schema.additionalProperties;
+      if (ap === true) {
+        return "Record<string, unknown>";
+      }
+      if (ap === false) {
+        return "{}";
+      }
+      if (ap && typeof ap === "object") {
+        const valueType = getPropertyType(ap, allSchemas, interfaceNameLookup);
+        return `Record<string, ${valueType}>`;
+      }
     }
 
     // If it has properties, it's a proper object type
