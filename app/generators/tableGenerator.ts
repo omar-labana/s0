@@ -8,6 +8,7 @@ import { normalizeTagName } from "./repositoryContentGenerator.ts";
 import { generateMethodName } from "./methodNaming.ts";
 import { pascalCase } from "scule";
 import { detectPaginationForGet } from "./paginationDetection.ts";
+import { generateQueryInterfaceName } from "./interfaceGenerator.ts";
 
 const isObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null;
@@ -33,8 +34,22 @@ function emitTableModule(params: {
   methodName: string;
   itemType: string;
   itemProps: string[];
+  camelMethodName: string;
+  queryTypeName?: string;
+  itemsPath: string[];
+  totalExpr?: string;
 }) {
-  const { outPath, tagName, methodName, itemType, itemProps } = params;
+  const {
+    outPath,
+    tagName,
+    methodName,
+    itemType,
+    itemProps,
+    camelMethodName,
+    queryTypeName,
+    itemsPath,
+    totalExpr,
+  } = params;
 
   const header = `// Auto-generated table helpers for ${tagName}.${methodName}\n// Generated on: ${formatTimestamp(
     new Date()
@@ -43,6 +58,12 @@ function emitTableModule(params: {
   const body = `import type * as Interfaces from '../interfaces.ts';
 import type { TableColumn } from 'npm:@nuxt/ui';
 import { Repository${tagName} } from '../repositories/Repository${tagName}.ts';
+import type { $Fetch } from 'npm:ofetch';
+${
+  queryTypeName
+    ? `import type { ${queryTypeName} } from '../repositories/Repository${tagName}.ts';`
+    : ""
+}
 
 export type Row = ${itemType};
 
@@ -59,6 +80,23 @@ ${itemProps
   })
   .join(",\n")}
 ];
+
+export async function fetch${methodName}Rows(
+  instance: $Fetch, 
+  params${queryTypeName ? `: ${queryTypeName}` : "?: Record<string, any>"}
+) {
+  const repo = new Repository${tagName}(instance)
+  type Resp = Awaited<ReturnType<typeof repo.${camelMethodName}>>
+  const raw: Resp = await repo.${camelMethodName}(${
+    queryTypeName ? "params" : ""
+  })
+
+  const rows: Row[] = raw?.${itemsPath.join("?.")} ?? []
+  const total: number = ${totalExpr || "rows.length"}
+
+  return { rows, total, raw } as const
+}
+
 `;
 
   const contents = header + body;
@@ -94,7 +132,8 @@ export function generateTables(swagger: OpenAPIV3.Document) {
       operationId: typeof op.operationId === "string" ? op.operationId : "",
       tags,
     };
-    const methodName = pascalCase(generateMethodName(endpointInfo));
+    const rawMethodName = generateMethodName(endpointInfo);
+    const methodName = pascalCase(rawMethodName);
 
     // item type
     const itemType = det.itemRefName
@@ -115,7 +154,18 @@ export function generateTables(swagger: OpenAPIV3.Document) {
 
     const fileName = `${tagName}${methodName}Table.ts`;
     const outPath = join(outDir, fileName);
-    emitTableModule({ outPath, tagName, methodName, itemType, itemProps });
+    const queryTypeName = generateQueryInterfaceName(endpointInfo);
+    emitTableModule({
+      outPath,
+      tagName,
+      methodName,
+      itemType,
+      itemProps,
+      camelMethodName: rawMethodName,
+      queryTypeName,
+      itemsPath: det.itemsPath ?? ["data", "items"],
+      totalExpr: det.totalExpr,
+    });
     console.log(`✅ Generated table helper: ${fileName}`);
   }
 
