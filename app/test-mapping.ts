@@ -1,4 +1,4 @@
-import { createRepository } from "./repositoryLookup.ts";
+import { createRepository } from "./useRepository.ts";
 import { $fetch } from "ofetch";
 
 const repo = await createRepository("shared-correspondences", $fetch);
