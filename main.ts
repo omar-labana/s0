@@ -4,6 +4,7 @@ import { $fetch } from "ofetch";
 import { promises as fs } from "node:fs";
 import type { OpenAPIV3 } from "./index.d.ts";
 import { generateRepositories } from "./app/generators/repositoryOrchestrator.ts";
+import { generateTables } from "./app/generators/tableGenerator.ts";
 import process from "node:process";
 
 const main = defineCommand({
@@ -42,6 +43,10 @@ const main = defineCommand({
           alias: "r",
           description: "Generate only repository classes",
         },
+        tables: {
+          type: "flag",
+          description: "Generate table helpers for list endpoints",
+        },
         force: {
           type: "flag",
           alias: "f",
@@ -75,7 +80,10 @@ const main = defineCommand({
           const outputDir = args.output;
 
           // Generate types if requested or if no specific type is specified
-          if (args.types || (!args.types && !args.repositories)) {
+          if (
+            args.types ||
+            (!args.types && !args.repositories && !args.tables)
+          ) {
             consola.info("🔍 Generating enums...");
             // Run enum generator script with the source path
             const prevArgv = [...process.argv];
@@ -99,9 +107,21 @@ const main = defineCommand({
           }
 
           // Generate repositories if requested or if no specific type is specified
-          if (args.repositories || (!args.types && !args.repositories)) {
+          if (
+            args.repositories ||
+            (!args.types && !args.repositories && !args.tables)
+          ) {
             consola.info("🔍 Generating repositories...");
             generateRepositories(swagger);
+          }
+
+          // Generate tables if requested or if no specific type is specified
+          if (
+            args.tables ||
+            (!args.types && !args.repositories && !args.tables)
+          ) {
+            consola.info("🔍 Generating tables...");
+            generateTables(swagger);
           }
 
           consola.success("✅ All types generated successfully!");

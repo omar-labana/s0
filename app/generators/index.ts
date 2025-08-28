@@ -29,3 +29,6 @@ export * from "./repositoryOrchestrator.ts";
 export * from "./utils.ts";
 export * from "./types.ts";
 export * from "./config.ts";
+
+// Tables generator
+export { generateTables } from "./tableGenerator.ts";
