@@ -56,6 +56,37 @@ const getOperationFromPathItem = (
   }
 };
 
+/**
+ * Generate the RepositoryMap.d.ts file that maps swagger tags to repository types
+ */
+function generateRepositoryMap(
+  repositories: Map<string, RepositoryFile>
+): string {
+  const imports: string[] = [];
+  const mappings: string[] = [];
+
+  for (const [tag, repository] of repositories) {
+    const normalizedName = normalizeTagName(repository.tag);
+    const className = `Repository${normalizedName}`;
+
+    imports.push(
+      `import type { ${className} } from "./repositories/${className}.ts"`
+    );
+    mappings.push(`  "${tag}": ${className}`);
+  }
+
+  return `// Auto-generated repository type mapping
+// Generated on: ${new Date().toISOString()}
+// Maps swagger tags to their generated repository types
+
+${imports.join("\n")}
+
+export type RepositoryMap = {
+${mappings.join(";\n")};
+};
+`;
+}
+
 // ----- main -----
 export function generateRepositories(swagger: OpenAPIV3.Document) {
   // expose components/schemas to utils (for enum/interface resolution)
@@ -127,7 +158,7 @@ export function generateRepositories(swagger: OpenAPIV3.Document) {
   const repositoriesDir = join(process.cwd(), CONFIG.OUTPUT.DIRECTORY);
   mkdirSync(repositoriesDir, { recursive: true });
 
-  // write files
+  // write repository files
   for (const [tag, repository] of repositories) {
     const content = generateRepositoryContent(repository);
     const fileName = `Repository${normalizeTagName(tag)}${
@@ -137,6 +168,16 @@ export function generateRepositories(swagger: OpenAPIV3.Document) {
     writeFileSync(filePath, content);
     console.log(`✅ Generated: ${fileName}`);
   }
+
+  // Generate RepositoryMap.d.ts
+  const repositoryMapContent = generateRepositoryMap(repositories);
+  const repositoryMapPath = join(
+    process.cwd(),
+    "generated",
+    "RepositoryMap.d.ts"
+  );
+  writeFileSync(repositoryMapPath, repositoryMapContent);
+  console.log(`✅ Generated: RepositoryMap.d.ts`);
 
   console.log(
     `\n📁 Generated ${repositories.size} repository files in: ${repositoriesDir}`
